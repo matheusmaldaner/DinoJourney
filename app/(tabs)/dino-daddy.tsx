@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from "expo-router";
 
 export default function DinoDaddy() {
     const [displayedText, setDisplayedText] = useState("");
@@ -16,6 +17,8 @@ export default function DinoDaddy() {
     const [goals, setGoals] = useState("");
     const [barriers, setBarriers] = useState("");
     const [finalMessage, setFinalMessage] = useState(false);
+
+    const router = useRouter(); 
 
     {/* Text templates for the conversation */}
     const initialText = "Hello there! My name is Gon, great to meet you. What is your name?";
@@ -42,6 +45,17 @@ export default function DinoDaddy() {
 
         return () => clearInterval(typingInterval);
     }, []);
+
+    useEffect(() => {
+        if (finalMessage) {
+            // Automatically navigate to the next screen after 2 seconds
+            const navigationTimeout = setTimeout(() => {
+                router.push('/dino-companion');
+            }, 2000);
+            
+            return () => clearTimeout(navigationTimeout);
+        }
+    }, [finalMessage]);
 
     const handleNameSubmit = () => {
         if (userName.trim()) {

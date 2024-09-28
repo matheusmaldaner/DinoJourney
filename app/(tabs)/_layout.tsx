@@ -13,7 +13,7 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
-        tabBarStyle: { display: 'none' },  // This will hide the taskbar
+        tabBarStyle: { display: 'none' },  
       }}
     >
       <Tabs.Screen
@@ -24,7 +24,17 @@ export default function TabLayout() {
             <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
           ),
         }}
-        /> 
+        />
+
+      <Tabs.Screen
+        name="dino-companion"
+        options={{
+          title: "dino-companion",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
+          ),
+        }}
+        />  
     </Tabs>
   );
 }

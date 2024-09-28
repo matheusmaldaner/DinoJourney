@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import { ThemedText } from "@/components/ThemedText";
-import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
+import { Text, TouchableOpacity, View, StyleSheet, Image, TextInput } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from "expo-router";
-
+import { ThemedText } from "@/components/ThemedText";
 
 export default function HomeScreen() {
     const [isPressed, setIsPressed] = useState(false);
-    const router = useRouter(); 
-
-    const handleNavigation = () => {
-        router.push('/dino-daddy'); 
-    };
+    const [inputText, setInputText] = useState('');
+   
 
     return (    
         <View style={styles.container}>
@@ -23,28 +18,36 @@ export default function HomeScreen() {
             {/* Image Section */}
             <View style={styles.imageSection}>
                 <Image 
-                    source={require('../../assets/images/dino-hatching.png')}
+                    source={require('../../assets/images/dino-companion.png')}
                     style={styles.image}
                 />
             </View>
 
-            {/* Text Section */}
-            <View style={styles.textSection}>
-                <ThemedText type="defaultSemiBold" style={styles.centeredText}>
-                    Crack the Shell - Hack to Excel!{"\n"}{"\n"}
-                    Grow your dinosaurs companion and reach your personal goals
-                </ThemedText>
+            {/* Speech Bubble Section */}
+            <View style={styles.speechBubble}>
+                <View style={styles.speechBubbleContent}>
+                    <Text style={styles.speechText}>
+                        Welcome! Ready to grow your dino companion?
+                    </Text>
+                </View>
             </View>
 
+            {/* Textbox Area */}
+            <View style={styles.textBoxArea}>
+                <TextInput
+                    style={styles.textInput}
+                    placeholder="Enter your goal"
+                    value={inputText}
+                    onChangeText={setInputText}
+                />
+            </View>
+
+            {/* Button Section */}
             <View style={styles.buttonSection}>
                 <TouchableOpacity
-                    style={[
-                        styles.button,
-                        isPressed ? styles.buttonPressed : null
-                    ]}
+                    style={[styles.button, isPressed ? styles.buttonPressed : null]}
                     onPressIn={() => setIsPressed(true)}
                     onPressOut={() => setIsPressed(false)}
-                    onPress={handleNavigation} 
                 >
                     <Text style={styles.buttonText}>Get Started</Text>
                 </TouchableOpacity>
@@ -67,32 +70,57 @@ const styles = StyleSheet.create({
         backgroundColor: '#E3DFCC',
     },
     navbar: {
-        flex: 1, 
+        flex: 0.5,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#E3DFCC',
+        paddingTop: 20,
     },
     imageSection: {
-        flex: 6, 
-        marginTop: 20,
+        flex: 4,
         justifyContent: 'center',
         alignItems: 'center',
     },
     image: {
-        width: '90%', 
-        height: '90%',
+        width: '80%',
+        height: '80%',
         resizeMode: 'contain',
     },
-    textSection: {
-        flex: 2,
+    speechBubble: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingHorizontal: 20,
     },
-    centeredText: {
-        textAlign: 'center',
+    speechBubbleContent: {
+        backgroundColor: '#FFFFFF',
+        padding: 15,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#000',
+        position: 'relative',
+    },
+    speechText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#000',
+    },
+    textBoxArea: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    textInput: {
+        backgroundColor: '#FFFFFF',
+        padding: 10,
+        width: '80%',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#000',
     },
     buttonSection: {
-        flex: 1.2,
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -116,9 +144,9 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     footer: {
-        flex: 1.8,
+        flex: 1.5,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#AAAAAA', 
+        backgroundColor: '#AAAAAA',
     },
 });

@@ -1,70 +1,123 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { ThemedText } from "@/components/ThemedText";
+import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from "expo-router";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+    const [isPressed, setIsPressed] = useState(false);
+    const router = useRouter(); 
+
+    const handleNavigation = () => {
+        router.push('/dino-daddy'); 
+    };
+
+    return (    
+        <View style={styles.container}>
+            {/* Navbar Section */}
+            <View style={styles.navbar}>
+                <ThemedText type="defaultSemiBold">APP NAME</ThemedText>
+            </View>
+
+            {/* Image Section */}
+            <View style={styles.imageSection}>
+                <Image 
+                    source={require('../../assets/images/dino-og.png')}
+                    style={styles.image}
+                />
+            </View>
+
+            {/* Text Section */}
+            <View style={styles.textSection}>
+                <ThemedText type="defaultSemiBold" style={styles.centeredText}>
+                    Crack the Shell - Hack to Excel!{"\n"}{"\n"}
+                    Grow your dinosaurs companion and reach your personal goals
+                </ThemedText>
+            </View>
+
+            <View style={styles.buttonSection}>
+                <TouchableOpacity
+                    style={[
+                        styles.button,
+                        isPressed ? styles.buttonPressed : null
+                    ]}
+                    onPressIn={() => setIsPressed(true)}
+                    onPressOut={() => setIsPressed(false)}
+                    onPress={handleNavigation} 
+                >
+                    <Text style={styles.buttonText}>Get Started</Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Footer Section */}
+            <LinearGradient
+                colors={['#E3DFCC', '#7D7B70']}
+                style={styles.footer}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+            />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    container: {
+        flex: 1,
+        backgroundColor: '#E3DFCC',
+    },
+    navbar: {
+        flex: 1, 
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#E3DFCC',
+    },
+    imageSection: {
+        flex: 5.5, 
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    image: {
+        width: '80%', 
+        height: '80%',
+        resizeMode: 'contain',
+    },
+    textSection: {
+        flex: 1.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    centeredText: {
+        textAlign: 'center',
+    },
+    buttonSection: {
+        flex: 1.2,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    button: {
+        backgroundColor: '#FFFFFF',
+        paddingVertical: 15,
+        paddingHorizontal: 40,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    buttonPressed: {
+        backgroundColor: '#DDDDDD',
+    },
+    buttonText: {
+        color: '#000000',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    footer: {
+        flex: 1.8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#AAAAAA', 
+    },
 });

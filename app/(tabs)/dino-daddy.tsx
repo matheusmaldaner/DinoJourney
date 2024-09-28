@@ -75,17 +75,15 @@ export default function DinoDaddy() {
 
     const handleInterestSubmit = () => {
         if (interests.trim() && interest2.trim()) {
-            // Replace [Interest 1] and [Interest 2] with the actual user's interests
+        
             const interestResponse = interestResponseTemplate
                 .replace("[Interest 1]", interests)
                 .replace("[Interest 2]", interest2);
 
-            // Reset the displayed text for the new personalized message
             setDisplayedText("");
             setShowInterestInput(false);
             setTypingComplete(false); 
 
-            // Start typing the personalized message about interests
             let currentIndex = 0;
             const typingInterval = setInterval(() => {
                 setDisplayedText((prevText) => prevText + interestResponse[currentIndex]);
@@ -95,7 +93,6 @@ export default function DinoDaddy() {
                     clearInterval(typingInterval);
                     setTypingComplete(true);
 
-                    // Wait same amount of time and show goal input
                     setTimeout(() => {
                         setDisplayedText("");
                         setShowGoalInput(true);
@@ -122,7 +119,6 @@ export default function DinoDaddy() {
                     clearInterval(typingInterval);
                     setTypingComplete(true);
 
-                    // Wait same amount of time and show barriers input
                     setTimeout(() => {
                         setDisplayedText("");
                         setShowBarriersInput(true);
@@ -266,13 +262,13 @@ export default function DinoDaddy() {
             )}
 
             {/* Final Message */}
-            {finalMessage && (
+            {/* {finalMessage && (
                 <View style={styles.finalMessageContainer}>
                     <Text style={styles.finalMessageText}>
                         That’s all my questions! As promised, it’s time to meet yo—
                     </Text>
                 </View>
-            )}
+            )} */}
         </View>
     );
 }

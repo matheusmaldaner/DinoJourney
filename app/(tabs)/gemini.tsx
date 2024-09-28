@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Image, Platform, TextInput, Button } from "react-native";
+import { StyleSheet, Image, Platform, TextInput, Button, View } from "react-native";
 
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
@@ -8,20 +8,28 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { useState } from "react";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { sendMessageAndGetResponse } from "@/gemini/responseGenerator";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
-const genAI = new GoogleGenerativeAI("[Redacted]");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+type message = {
+  user: boolean;
+  text: string;
+};
 
 export default function GeminiTestScreen() {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
+  const [messages, setResponses] = useState<message[]>([]);
+  const textColor = useThemeColor({ light: "black", dark: "white" }, "text");
 
   const fetchResponse = async () => {
     console.log("fetching response for prompt:", prompt);
-    const result = await model.generateContent(prompt);
-    console.log("response:", result.response.text());
-    setResponse(result.response.text());
+    setResponses([...messages, { user: true, text: prompt }]);
+    const result = await sendMessageAndGetResponse(prompt);
+    console.log("response:", result);
+    setResponse(result);
+    setResponses([...messages, { user: true, text: prompt }, { user: false, text: result }]);
+    setPrompt("");
   };
 
   return (
@@ -33,9 +41,39 @@ export default function GeminiTestScreen() {
         <ThemedText type="title">Gemini</ThemedText>
       </ThemedView>
       <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <TextInput style={{ color: "white" }} value={prompt} onChangeText={setPrompt} />
-      <Button title="Submit" onPress={fetchResponse} />
-      <ThemedText>response: {response}</ThemedText>
+      {messages.map((response, index) => (
+        <ThemedText
+          key={index}
+          style={{
+            color: "white",
+            borderWidth: 1,
+            borderRadius: 25,
+            backgroundColor: response.user ? "green" : "blue",
+            padding: 10,
+            borderBottomLeftRadius: response.user ? 25 : 0,
+            borderBottomRightRadius: response.user ? 0 : 25,
+          }}
+        >
+          {response.text}
+        </ThemedText>
+      ))}
+      <View style={{ flexDirection: "row", gap: 5 }}>
+        <TextInput
+          style={{
+            color: textColor,
+            borderColor: "green",
+            borderRadius: 5,
+            padding: 10,
+            borderWidth: 1,
+            flex: 1,
+          }}
+          value={prompt}
+          onChangeText={setPrompt}
+          onSubmitEditing={fetchResponse}
+          multiline
+        />
+        <Button title="Send" onPress={fetchResponse} />
+      </View>
     </ParallaxScrollView>
   );
 }

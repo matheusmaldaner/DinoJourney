@@ -260,15 +260,7 @@ export default function DinoDaddy() {
                     </View>
                 </View>
             )}
-
-            {/* Final Message */}
-            {/* {finalMessage && (
-                <View style={styles.finalMessageContainer}>
-                    <Text style={styles.finalMessageText}>
-                        That’s all my questions! As promised, it’s time to meet yo—
-                    </Text>
-                </View>
-            )} */}
+            
         </View>
     );
 }

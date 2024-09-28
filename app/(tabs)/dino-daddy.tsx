@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from "expo-router";
 
 export default function DinoDaddy() {
     const [displayedText, setDisplayedText] = useState("");
@@ -16,6 +17,8 @@ export default function DinoDaddy() {
     const [goals, setGoals] = useState("");
     const [barriers, setBarriers] = useState("");
     const [finalMessage, setFinalMessage] = useState(false);
+
+    const router = useRouter(); 
 
     {/* Text templates for the conversation */}
     const initialText = "Hello there! My name is Gon, great to meet you. What is your name?";
@@ -35,13 +38,24 @@ export default function DinoDaddy() {
                 setTypingComplete(true);
                 setTimeout(() => {
                     setDisplayedText("");
-                    setShowNameInput(true); // Show input for name after delay
+                    setShowNameInput(true);
                 }, 3000);
             }
         }, 50);
 
         return () => clearInterval(typingInterval);
     }, []);
+
+    useEffect(() => {
+        if (finalMessage) {
+            // Automatically navigate to the next screen after 2 seconds
+            const navigationTimeout = setTimeout(() => {
+                router.push('/dino-companion');
+            }, 2000);
+            
+            return () => clearTimeout(navigationTimeout);
+        }
+    }, [finalMessage]);
 
     const handleNameSubmit = () => {
         if (userName.trim()) {
@@ -75,17 +89,15 @@ export default function DinoDaddy() {
 
     const handleInterestSubmit = () => {
         if (interests.trim() && interest2.trim()) {
-            // Replace [Interest 1] and [Interest 2] with the actual user's interests
+        
             const interestResponse = interestResponseTemplate
                 .replace("[Interest 1]", interests)
                 .replace("[Interest 2]", interest2);
 
-            // Reset the displayed text for the new personalized message
             setDisplayedText("");
             setShowInterestInput(false);
             setTypingComplete(false); 
 
-            // Start typing the personalized message about interests
             let currentIndex = 0;
             const typingInterval = setInterval(() => {
                 setDisplayedText((prevText) => prevText + interestResponse[currentIndex]);
@@ -95,7 +107,6 @@ export default function DinoDaddy() {
                     clearInterval(typingInterval);
                     setTypingComplete(true);
 
-                    // Wait same amount of time and show goal input
                     setTimeout(() => {
                         setDisplayedText("");
                         setShowGoalInput(true);
@@ -122,7 +133,6 @@ export default function DinoDaddy() {
                     clearInterval(typingInterval);
                     setTypingComplete(true);
 
-                    // Wait same amount of time and show barriers input
                     setTimeout(() => {
                         setDisplayedText("");
                         setShowBarriersInput(true);
@@ -264,15 +274,7 @@ export default function DinoDaddy() {
                     </View>
                 </View>
             )}
-
-            {/* Final Message */}
-            {finalMessage && (
-                <View style={styles.finalMessageContainer}>
-                    <Text style={styles.finalMessageText}>
-                        That’s all my questions! As promised, it’s time to meet yo—
-                    </Text>
-                </View>
-            )}
+            
         </View>
     );
 }

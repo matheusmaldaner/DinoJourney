@@ -1,38 +1,21 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { TabBarIcon } from "@/components/navigation/TabBarIcon";
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
+import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
     <Tabs
+      initialRouteName="test"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
+        tabBarStyle: { display: "none" },
       }}
     >
-      <Tabs.Screen
-        name="test"
-        options={{
-          title: "Test",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
-          ),
-          tabBarStyle: { display: "none" },
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: "Explore",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? "code-slash" : "code-slash-outline"} color={color} />
-          ),
-        }}
-      />
       <Tabs.Screen
         name="dino-daddy"
         options={{
@@ -42,10 +25,11 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
-        name="gemini"
+        name="dino-companion"
         options={{
-          title: "Nick",
+          title: "dino-companion",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
           ),

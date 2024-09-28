@@ -16,14 +16,14 @@ export default function HomeScreen() {
     return (    
         <View style={styles.container}>
             {/* Navbar Section */}
-            <View style={styles.navbar}>
+            {/* <View style={styles.navbar}>
                 <ThemedText type="defaultSemiBold">APP NAME</ThemedText>
-            </View>
+            </View> */}
 
             {/* Image Section */}
             <View style={styles.imageSection}>
                 <Image 
-                    source={require('../../assets/images/dino-hatching.png')}
+                    source={require('../../assets/images/dino-baby-upgrade.png')}
                     style={styles.image}
                 />
             </View>
@@ -52,7 +52,7 @@ export default function HomeScreen() {
 
             {/* Footer Section */}
             <LinearGradient
-                colors={['#E3DFCC', '#7D7B70']}
+                colors={['#E3DFCC', '#65665C']}
                 style={styles.footer}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 1 }}
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     footer: {
-        flex: 1.8,
+        flex: 2,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#AAAAAA', 

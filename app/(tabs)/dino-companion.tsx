@@ -7,18 +7,16 @@ export default function HomeScreen() {
     const [isPressed, setIsPressed] = useState(false);
     const [inputText, setInputText] = useState('');
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    const displayedText = "Welcome! Ready to grow your dino companion?"; // Text for the bubble
+    const displayedText = "Welcome! Ready to grow your dino companion?"; // Text for chatbot
 
     useEffect(() => {
-        // Add event listener for keyboard appearance
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-            setKeyboardVisible(true); // Hide text when the keyboard is open
+            setKeyboardVisible(true);
         });
         const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardVisible(false); // Show text when the keyboard is closed
+            setKeyboardVisible(false);
         });
 
-        // Cleanup event listeners on component unmount
         return () => {
             keyboardDidShowListener.remove();
             keyboardDidHideListener.remove();
@@ -39,7 +37,7 @@ export default function HomeScreen() {
                     style={styles.quoteBubbleImage}
                 />
                 {/* Text inside the quote bubble */}
-                {!isKeyboardVisible && ( // Hide text when the keyboard is visible
+                {!isKeyboardVisible && (
                     <View style={styles.textOverlay}>
                         <Text style={styles.bubbleText}>{displayedText}</Text>
                     </View>
@@ -115,7 +113,7 @@ const styles = StyleSheet.create({
     },
     textOverlay: {
         position: 'absolute',
-        top: '35%',  // Adjusted to fit the bubble shape
+        top: '35%', 
         left: '15%',
         right: '15%',
         justifyContent: 'center',

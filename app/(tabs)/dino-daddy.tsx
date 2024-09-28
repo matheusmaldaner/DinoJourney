@@ -35,7 +35,7 @@ export default function DinoDaddy() {
                 setTypingComplete(true);
                 setTimeout(() => {
                     setDisplayedText("");
-                    setShowNameInput(true); // Show input for name after delay
+                    setShowNameInput(true);
                 }, 3000);
             }
         }, 50);

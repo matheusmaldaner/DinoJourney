@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, Button, StyleSheet, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { PurpleButton } from '@/components/PurpleButton';
 
 export default function DinoPostHatch(): JSX.Element {
     const router = useRouter();
@@ -28,10 +29,7 @@ export default function DinoPostHatch(): JSX.Element {
 
             {/* Button */}
             <View style={styles.buttonContainer}>
-                <Button
-                    title="Get Started"
-                    onPress={handleNavigation}  // Call the navigation function here
-                />
+                <PurpleButton title="Start Chatting" onPress={handleNavigation} />
             </View>
         </View>
     );
@@ -46,13 +44,13 @@ const styles = StyleSheet.create({
     },
     fullScreenImage: {
         width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height * 0.6,
+        height: Dimensions.get('window').height * 0.53,
     },
     largerText: {
         fontSize: 20,
         marginBottom: 5,
         textAlign: 'center',
-        fontFamily: 'InriaSerif-Bold',
+        fontFamily: 'InriaSerifBold',
     },
     smallerText: {
         textAlign: 'center',
@@ -63,8 +61,12 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginTop: 10,
         width: '80%',
+
     },
     footer: {
         padding: 10,
+    },
+    buttonStyle: {
+        color: "#7c7fad"
     }
 });

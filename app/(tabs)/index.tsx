@@ -38,15 +38,17 @@ export default function HomeScreen(): JSX.Element {
             {/* Image Section */}
             <View style={styles.imageSection}>
                 <Image
-                    source={require('../../assets/images/dino-baby-upgrade.png')}
+                    source={require('../../assets/gifs/dino-home.gif')}
                     style={styles.image}
                 />
             </View>
 
             {/* Text Section */}
             <View style={styles.textSection}>
-                <ThemedText type="defaultSemiBold" style={styles.centeredText}>
+                <ThemedText type="defaultSemiBold" style={styles.bigText}>
                     Crack the Shell - Hack to Excel!{"\n"}{"\n"}
+                </ThemedText>
+                <ThemedText type="defaultSemiBold" style={styles.smallText}>
                     Grow your dinosaurs companion and reach your personal goals
                 </ThemedText>
             </View>
@@ -97,23 +99,31 @@ const styles = StyleSheet.create({
         backgroundColor: '#E3DFCC',
     },
     imageSection: {
-        flex: 6,
+        flex: 7,
         marginTop: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
     image: {
-        width: '90%',
-        height: '90%',
-        resizeMode: 'contain',
+        marginTop: 100,
+        width: '100%',
+        height: '100%',
+        resizeMode: 'cover',
     },
     textSection: {
         flex: 2,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    centeredText: {
+    bigText: {
         textAlign: 'center',
+        fontSize: 22,
+        fontFamily: 'InriaSerifBold',
+    },
+    smallText: {
+        textAlign: 'center',
+        fontSize: 16,
+        fontFamily: 'InriaSerif',
     },
     buttonSection: {
         flex: 1.2,
@@ -130,6 +140,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 5,
+        marginTop: 20,
     },
     buttonPressed: {
         backgroundColor: '#DDDDDD',

@@ -34,15 +34,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="dino-companion"
-        options={{
-          title: "dino-companion",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="dino-post-hatch"
         options={{
           title: "dino-post-hatch",

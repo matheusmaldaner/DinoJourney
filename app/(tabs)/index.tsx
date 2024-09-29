@@ -6,40 +6,63 @@ import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { fadeOut, fadeIn } from '../audioUtils';
 
-const idle_audio = require('../../assets/audio/Idle.mp3');
+const idle_audio = require('../../assets/audio/Music/Idle.mp3');
+const button_click_audio = require('../../assets/audio/App_Sounds/press.mp3'); // Import the button click sound effect
 
 export default function HomeScreen(): JSX.Element {
     const [isPressed, setIsPressed] = useState<boolean>(false);
     const [idleSound, setIdleSound] = useState<Audio.Sound | null>(null);
+    const [buttonClickSound, setButtonClickSound] = useState<Audio.Sound | null>(null);
     const router = useRouter();
   
     const handleNavigation = async (): Promise<void> => {
-      if (idleSound) {
-        await fadeOut(idleSound, 1500); // Fade out over 1.5 seconds
-      }
-      router.push('/dino-daddy');
-    };
-  
-    useEffect(() => {
-      const loadAndPlayOnboarding = async (): Promise<void> => {
         try {
-          const { sound: idle } = await Audio.Sound.createAsync(idle_audio);
-          setIdleSound(idle);
-          await fadeIn(idle, 1500); // Fade in over 1.5 seconds
+            if (buttonClickSound) {
+                await buttonClickSound.replayAsync(); // Play button click sound when navigating
+            }
+            if (idleSound) {
+                await fadeOut(idleSound, 500); // Fade out over 1/2 second
+            }
+            router.push('/dino-daddy');
         } catch (error) {
-          console.error("Error loading or playing audio:", error);
+            console.error("Error handling navigation or playing button sound:", error);
         }
-      };
-        loadAndPlayOnboarding();
+    };
+
+    useEffect(() => {
+        const loadSounds = async (): Promise<void> => {
+            try {
+                // Load Idle Audio
+                const { sound: idle } = await Audio.Sound.createAsync(idle_audio);
+                setIdleSound(idle);
+                await fadeIn(idle, 1500); // Fade in over 1.5 seconds
+
+                // Load Button Click Sound
+                const { sound: buttonClick } = await Audio.Sound.createAsync(button_click_audio);
+                setButtonClickSound(buttonClick);
+            } catch (error) {
+                console.error("Error loading or playing audio:", error);
+            }
+        };
+        loadSounds();
 
         // Cleanup: Stop both sounds when the component unmounts
         return () => {
-          if (idleSound) {
-            idleSound.stopAsync();
-          }
-          if (idleSound) {
-            idleSound.stopAsync();
-          }
+            const stopAndUnload = async () => {
+                try {
+                    if (idleSound) {
+                        await fadeOut(idleSound, 500); // Fade out over 1/2 second
+                        await idleSound.stopAsync(); // Stop the sound after fade out
+                        await idleSound.unloadAsync(); // Free resources
+                    }
+                    if (buttonClickSound) {
+                        await buttonClickSound.unloadAsync(); // Free button click sound resources
+                    }
+                } catch (error) {
+                    console.error("Error unloading audio:", error);
+                }
+            };
+            stopAndUnload();
         };
     }, []);
 
@@ -72,7 +95,16 @@ export default function HomeScreen(): JSX.Element {
                         styles.button,
                         isPressed ? styles.buttonPressed : null
                     ]}
-                    onPressIn={() => setIsPressed(true)}
+                    onPressIn={async () => {
+                        setIsPressed(true);
+                        if (buttonClickSound) {
+                            try {
+                                await buttonClickSound.replayAsync(); // Play button click sound when pressing the button
+                            } catch (error) {
+                                console.error("Error playing button click sound:", error);
+                            }
+                        }
+                    }}
                     onPressOut={() => setIsPressed(false)}
                     onPress={handleNavigation} 
                 >

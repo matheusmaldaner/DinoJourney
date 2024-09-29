@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { Audio } from 'expo-av';
 import { fadeOut, fadeIn } from '../audioUtils';
 
-const background_audio = require('../../assets/audio/Explore.mp3');
+const background_audio = require('../../assets/audio/Music/Explore.mp3');
 
 export default function DinoDaddy(): JSX.Element {
     const router = useRouter();
@@ -16,7 +16,7 @@ export default function DinoDaddy(): JSX.Element {
             try {
                 const { sound } = await Audio.Sound.createAsync(background_audio);
                 setBackgroundSound(sound);
-                await fadeIn(sound, 1500); // Fade in the background music over 1.5 seconds
+                await fadeIn(sound, 500); // Fade in the background music over 1/2 seconds
             } catch (error) {
                 console.error("Error loading or playing audio:", error);
             }
@@ -27,7 +27,7 @@ export default function DinoDaddy(): JSX.Element {
         // Set up the timer to navigate after 32 seconds and fade out the audio
         const timer = setTimeout(async () => {
             if (backgroundSound) {
-                await fadeOut(backgroundSound, 1500); // Fade out audio over 1.5 seconds
+                await fadeOut(backgroundSound, 500); // Fade out audio over 1/2 seconds
             }
             router.push('/dino-companion');
         }, 32000);
@@ -39,7 +39,7 @@ export default function DinoDaddy(): JSX.Element {
             }
             clearTimeout(timer);
         };
-    }, [router]);
+    }, []);
 
     return (
         <View style={styles.container}>

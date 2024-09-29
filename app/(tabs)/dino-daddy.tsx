@@ -8,7 +8,8 @@ import { setName } from '@/storage/userData';
 import { ACCOMPLISHMENTS_LIST_NAME, GOALS_LIST_NAME, INTERESTS_LIST_NAME, saveList, STRUGGLES_LIST_NAME } from '@/storage/listStorage';
 import { fadeOut, fadeIn } from '../audioUtils';
 
-const onboarding_audio = require('../../assets/audio/Onboarding.mp3');
+const onboarding_audio = require('../../assets/audio/Music/Onboarding.mp3');
+const button_click_audio = require('../../assets/audio/App_Sounds/press.mp3'); // Import the button click sound effect
 
 export default function DinoDaddy(): JSX.Element {
     const [displayedText, setDisplayedText] = useState("");
@@ -25,6 +26,7 @@ export default function DinoDaddy(): JSX.Element {
     const [finalMessage, setFinalMessage] = useState(false);
 
     const [onboardingSound, setOnboardingSound] = useState<Audio.Sound | null>(null);
+    const [buttonClickSound, setButtonClickSound] = useState<Audio.Sound | null>(null);
     const router = useRouter();
     const nav = useNavigation();
 
@@ -35,36 +37,31 @@ export default function DinoDaddy(): JSX.Element {
     const barrierQuestionTemplate = "My last question before meeting your companion... what barriers do you face when trying to reach your goal of [goal]?";
     const finalMessageText = "That’s all my questions! As promised, it’s time to meet yo—";
 
-    useEffect(() => {
-        // Typing animation for the initial message
+    // Function to handle the typing effect for displaying text one character at a time
+    const typeText = (text: string, callback: () => void) => {
         let currentIndex = 0;
         const typingInterval = setInterval(() => {
-            setDisplayedText((prevText) => prevText + initialText[currentIndex]);
+            setDisplayedText((prevText) => prevText + text[currentIndex]);
             currentIndex++;
 
-            if (currentIndex === initialText.length) {
+            if (currentIndex === text.length) {
                 clearInterval(typingInterval);
-                setTypingComplete(true);
-                setTimeout(() => {
-                    setDisplayedText("");
-                    setShowNameInput(true);
-                }, 3000);
+                callback();
             }
         }, 50);
+    };
 
-        return () => clearInterval(typingInterval);
-    }, []);
-
-    // Load and play onboarding sound
     useEffect(() => {
+        // Load and play onboarding sound
         const loadAndPlayOnboarding = async () => {
             try {
-                // Load Onboarding Audio
                 const { sound: onboarding } = await Audio.Sound.createAsync(onboarding_audio);
                 setOnboardingSound(onboarding);
-
-                // Fade in onboarding music
-                await fadeIn(onboarding, 1500);
+                await fadeIn(onboarding, 100);
+                
+                // Load Button Click Sound
+                const { sound: buttonClick } = await Audio.Sound.createAsync(button_click_audio);
+                setButtonClickSound(buttonClick);
             } catch (error) {
                 console.error("Error loading or playing audio:", error);
             }
@@ -72,37 +69,36 @@ export default function DinoDaddy(): JSX.Element {
 
         loadAndPlayOnboarding();
 
+        // Typing animation for the initial message
+        typeText(initialText, () => {
+            setTypingComplete(true);
+            setTimeout(() => {
+                setDisplayedText("");
+                setShowNameInput(true);
+            }, 2000);
+        });
+
         // Cleanup: Stop the sound when the component unmounts
         return () => {
-            if (onboardingSound) {
-                onboardingSound.stopAsync();
-            }
+            const stopAndUnload = async () => {
+                if (onboardingSound) {
+                    await onboardingSound.stopAsync();
+                    await onboardingSound.unloadAsync();
+                }
+                if (buttonClickSound) {
+                    await buttonClickSound.unloadAsync();
+                }
+            };
+            stopAndUnload();
         };
     }, []);
 
-    // Handle the transition to the next page after submitting the final message
-    useEffect(() => {
-        if (finalMessage) {
-            const handleNavigation = async () => {
-                if (onboardingSound) {
-                    // Fade out the onboarding sound
-                    await fadeOut(onboardingSound, 1500);
-                }
-                // Navigate to the next screen after fading out the sound
-                const navigationTimeout = setTimeout(() => {
-                    router.push('/dino-hatching');
-                }, 2000); // Wait 2 seconds to allow transition
-
-                return () => clearTimeout(navigationTimeout);
-            };
-
-            handleNavigation();
-        }
-    }, [finalMessage, onboardingSound]);
-
     // Handle the name submission
-    const handleNameSubmit = () => {
+    const handleNameSubmit = async () => {
         if (userName.trim()) {
+            if (buttonClickSound) {
+                await buttonClickSound.replayAsync(); // Play button click sound
+            }
             setName(userName.trim());
             const personalizedText = personalizedTextTemplate.replace("[NAME]", userName);
 
@@ -110,27 +106,22 @@ export default function DinoDaddy(): JSX.Element {
             setShowNameInput(false);
             setTypingComplete(false);
 
-            let currentIndex = 0;
-            const typingInterval = setInterval(() => {
-                setDisplayedText((prevText) => prevText + personalizedText[currentIndex]);
-                currentIndex++;
-
-                if (currentIndex === personalizedText.length) {
-                    clearInterval(typingInterval);
-                    setTypingComplete(true);
-
-                    setTimeout(() => {
-                        setDisplayedText("");
-                        setShowInterestInput(true);
-                    }, 3000);
-                }
-            }, 50);
+            typeText(personalizedText, () => {
+                setTypingComplete(true);
+                setTimeout(() => {
+                    setDisplayedText("");
+                    setShowInterestInput(true);
+                }, 2000);
+            });
         }
     };
 
     // Handle the interests submission
-    const handleInterestSubmit = () => {
+    const handleInterestSubmit = async () => {
         if (interests.trim() && interest2.trim()) {
+            if (buttonClickSound) {
+                await buttonClickSound.replayAsync(); // Play button click sound
+            }
             const interestResponse = interestResponseTemplate
                 .replace("[Interest 1]", interests)
                 .replace("[Interest 2]", interest2);
@@ -140,27 +131,22 @@ export default function DinoDaddy(): JSX.Element {
             setShowInterestInput(false);
             setTypingComplete(false);
 
-            let currentIndex = 0;
-            const typingInterval = setInterval(() => {
-                setDisplayedText((prevText) => prevText + interestResponse[currentIndex]);
-                currentIndex++;
-
-                if (currentIndex === interestResponse.length) {
-                    clearInterval(typingInterval);
-                    setTypingComplete(true);
-
-                    setTimeout(() => {
-                        setDisplayedText("");
-                        setShowGoalInput(true);
-                    }, 3000);
-                }
-            }, 50);
+            typeText(interestResponse, () => {
+                setTypingComplete(true);
+                setTimeout(() => {
+                    setDisplayedText("");
+                    setShowGoalInput(true);
+                }, 2000);
+            });
         }
     };
 
     // Handle the goal submission
-    const handleGoalSubmit = () => {
+    const handleGoalSubmit = async () => {
         if (goals.trim()) {
+            if (buttonClickSound) {
+                await buttonClickSound.replayAsync(); // Play button click sound
+            }
             const barrierQuestion = barrierQuestionTemplate.replace("[goal]", goals);
             saveList(GOALS_LIST_NAME, [goals]);
 
@@ -168,43 +154,31 @@ export default function DinoDaddy(): JSX.Element {
             setShowGoalInput(false);
             setTypingComplete(false);
 
-            let currentIndex = 0;
-            const typingInterval = setInterval(() => {
-                setDisplayedText((prevText) => prevText + barrierQuestion[currentIndex]);
-                currentIndex++;
-
-                if (currentIndex === barrierQuestion.length) {
-                    clearInterval(typingInterval);
-                    setTypingComplete(true);
-
-                    setTimeout(() => {
-                        setDisplayedText("");
-                        setShowBarriersInput(true);
-                    }, 3000);
-                }
-            }, 50);
+            typeText(barrierQuestion, () => {
+                setTypingComplete(true);
+                setTimeout(() => {
+                    setDisplayedText("");
+                    setShowBarriersInput(true);
+                }, 2000);
+            });
         }
     };
 
     // Handle the barriers submission
-    const handleBarriersSubmit = () => {
+    const handleBarriersSubmit = async () => {
         if (barriers.trim()) {
+            if (buttonClickSound) {
+                await buttonClickSound.replayAsync(); // Play button click sound
+            }
             setDisplayedText("");
             setShowBarriersInput(false);
             setTypingComplete(false);
             saveList(STRUGGLES_LIST_NAME, [barriers]);
 
-            let currentIndex = 0;
-            const typingInterval = setInterval(() => {
-                setDisplayedText((prevText) => prevText + finalMessageText[currentIndex]);
-                currentIndex++;
-
-                if (currentIndex === finalMessageText.length) {
-                    clearInterval(typingInterval);
-                    setTypingComplete(true);
-                    setFinalMessage(true);
-                }
-            }, 50);
+            typeText(finalMessageText, () => {
+                setTypingComplete(true);
+                setFinalMessage(true);
+            });
         }
     };
 
@@ -212,7 +186,7 @@ export default function DinoDaddy(): JSX.Element {
         <View style={styles.container}>
             {/* Navbar Section */}
             <View style={styles.navbar}>
-                <ThemedText type="defaultSemiBold">APP NAME</ThemedText>
+                <ThemedText type="defaultSemiBold">DinoJourney</ThemedText>
             </View>
 
             {/* Quote Bubble Section */}
@@ -260,7 +234,65 @@ export default function DinoDaddy(): JSX.Element {
                 </View>
             )}
 
-            {/* Additional Popups for Interests, Goals, and Barriers are similar to Name Input */}
+            {/* Popup for Interests Input */}
+            {showInterestInput && (
+                <View style={styles.overlay}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.overlayText}>Describe Your Interests</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Type your first interest"
+                            value={interests}
+                            onChangeText={(text) => setInterests(text)}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Type your second interest"
+                            value={interest2}
+                            onChangeText={(text) => setInterest2(text)}
+                        />
+                        <TouchableOpacity style={styles.button} onPress={handleInterestSubmit}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
+
+            {/* Popup for Goals Input */}
+            {showGoalInput && (
+                <View style={styles.overlay}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.overlayText}>What are your goals?</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Type your goals or aspirations"
+                            value={goals}
+                            onChangeText={(text) => setGoals(text)}
+                        />
+                        <TouchableOpacity style={styles.button} onPress={handleGoalSubmit}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
+
+            {/* Popup for Barriers Input */}
+            {showBarriersInput && (
+                <View style={styles.overlay}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.overlayText}>What barriers do you face in achieving your goal?</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Describe your barriers"
+                            value={barriers}
+                            onChangeText={(text) => setBarriers(text)}
+                        />
+                        <TouchableOpacity style={styles.button} onPress={handleBarriersSubmit}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
     );
 }

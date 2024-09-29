@@ -1,16 +1,15 @@
 # Dino Journey 🦕 
 
-![App Banner](path_to_image)
+![App Banner](https://i.ibb.co/pJXP0HL/family-thumbnail.png)
 
 Dino Journey is a mental health and productivity app designed to provide non-judgmental support through a growing dino companion that evolves with the user. The app encourages emotional well-being without inducing guilt, helping users stay productive while maintaining a sense of support and growth. Built during **ShellHacks 2024**, this app integrates elements of gamification and mental health research to ensure a positive, supportive experience for its users.
 
 ---
 
-## Demo and Screenshots
+## Demo and DevPost Submission
 
-- [![YouTube Video](path_to_youtube_thumbnail)](link_to_youtube_video)
-- ![App Screenshot 1](path_to_image_1)
-- ![App Screenshot 2](path_to_image_2)
+- ![YouTube](https://youtu.be/JlcKGVx0zZE)
+- ![Devpost](https://devpost.com/software/dinojourney)
 
 ---
 

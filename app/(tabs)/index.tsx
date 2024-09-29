@@ -5,75 +5,78 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 
+
 const idle_audio = require('../../assets/audio/Idle.mp3');
 
 export default function HomeScreen() {
     const [isPressed, setIsPressed] = useState(false);
     const [idleSound, setIdleSound] = useState<Audio.Sound | null>(null);
     const [playing, setPlaying] = useState(false);
-    const router = useRouter(); 
+    const router = useRouter();
 
     const handleNavigation = () => {
         if (idleSound) {
-            // Pause the onboarding sound
             idleSound.pauseAsync();
         }
-        router.push('/dino-daddy'); 
+        router.push('/dino-daddy');
     };
 
     useEffect(() => {
         const loadAndPlayOnboarding = async () => {
-          try {
+            try {
 
-            // Load Idle Audio
-            const { sound: idle } = await Audio.Sound.createAsync(idle_audio);
-            setIdleSound(idle);
-    
-            // Stop Idle music if playing
-            await idle.pauseAsync();
-    
-            // Play Idle music
-            await idle.playAsync();
-            setPlaying(true);
-          } catch (error) {
-            console.log("Error loading or playing audio:", error);
-          }
+                // Load Idle Audio
+                const { sound: idle } = await Audio.Sound.createAsync(idle_audio);
+                setIdleSound(idle);
+
+                // Stop Idle music if playing
+                await idle.pauseAsync();
+
+                // Play Idle music
+                await idle.playAsync();
+                setPlaying(true);
+            } catch (error) {
+                console.log("Error loading or playing audio:", error);
+            }
         };
 
         loadAndPlayOnboarding();
 
         // Cleanup: Stop both sounds when the component unmounts
         return () => {
-          if (idleSound) {
-            idleSound.stopAsync();
-          }
-          if (idleSound) {
-            idleSound.stopAsync();
-          }
+            if (idleSound) {
+                idleSound.stopAsync();
+            }
+            if (idleSound) {
+                idleSound.stopAsync();
+            }
         };
     }, []);
 
-    return (    
+    return (
         <View style={styles.container}>
             {/* Navbar Section */}
-            {/* <View style={styles.navbar}>
+            <View style={styles.navbar}>
                 <ThemedText type="defaultSemiBold">APP NAME</ThemedText>
-            </View> */}
+            </View>
 
             {/* Image Section */}
             <View style={styles.imageSection}>
-                <Image 
-                    source={require('../../assets/images/dino-baby-upgrade.png')}
+                <Image
+                    source={require('../../assets/gifs/dino-heart.gif')}
                     style={styles.image}
                 />
             </View>
 
             {/* Text Section */}
             <View style={styles.textSection}>
-                <ThemedText type="defaultSemiBold" style={styles.centeredText}>
+                <ThemedText type="defaultSemiBold" style={styles.largerText}>
                     Crack the Shell - Hack to Excel!{"\n"}{"\n"}
+                </ThemedText>
+                <ThemedText type="defaultSemiBold" style={styles.smallerText}>
                     Grow your dinosaurs companion and reach your personal goals
                 </ThemedText>
+
             </View>
 
             <View style={styles.buttonSection}>
@@ -84,7 +87,7 @@ export default function HomeScreen() {
                     ]}
                     onPressIn={() => setIsPressed(true)}
                     onPressOut={() => setIsPressed(false)}
-                    onPress={handleNavigation} 
+                    onPress={handleNavigation}
                 >
                     <Text style={styles.buttonText}>Get Started</Text>
                 </TouchableOpacity>
@@ -107,19 +110,19 @@ const styles = StyleSheet.create({
         backgroundColor: '#E3DFCC',
     },
     navbar: {
-        flex: 1, 
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#E3DFCC',
     },
     imageSection: {
-        flex: 6, 
+        flex: 6,
         marginTop: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
     image: {
-        width: '90%', 
+        width: '90%',
         height: '90%',
         resizeMode: 'contain',
     },
@@ -127,9 +130,18 @@ const styles = StyleSheet.create({
         flex: 2,
         justifyContent: 'center',
         alignItems: 'center',
+
     },
-    centeredText: {
+    smallerText: {
         textAlign: 'center',
+        fontFamily: 'InriaSerif',
+        fontSize: 16,
+        marginBottom: 30
+    },
+    largerText: {
+        textAlign: 'center',
+        fontFamily: 'InriaSerifBold',
+        fontSize: 24
     },
     buttonSection: {
         flex: 1.2,
@@ -159,6 +171,6 @@ const styles = StyleSheet.create({
         flex: 2,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#AAAAAA', 
+        backgroundColor: '#AAAAAA',
     },
 });

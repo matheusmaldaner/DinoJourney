@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { sendMessageAndGetResponse } from "@/gemini/responseGenerator";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { XPBar } from "@/components/XPBar";
+import { LevelUpPopup } from "@/components/LevelUpPopup";
 
 type message = {
   user: boolean;
@@ -29,6 +31,7 @@ export default function GeminiTestScreen() {
 
   const fetchResponse = async () => {
     console.log("fetching response for prompt:", prompt);
+    if (prompt.trim() === "") return;
     setResponses([...messages, { user: true, text: prompt }]);
     setPrompt("");
     const result = await sendMessageAndGetResponse(prompt);
@@ -41,27 +44,56 @@ export default function GeminiTestScreen() {
     <LinearGradient
       colors={["#E3DFCC", "#7D7B70"]}
       style={{
-        paddingTop: insets.top + 10,
         paddingBottom: insets.bottom + 10,
-        paddingHorizontal: 10,
         flex: 1,
       }}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
     >
-      <View style={{ flexDirection: "row", gap: 20, alignItems: "center" }}>
-        <Image
-          source={require("@/assets/images/dino-hatching.png")}
-          resizeMethod="resize"
-          style={{ height: 80, width: 80, borderRadius: 40, borderWidth: 1, borderColor: "gray" }}
-        />
-        <ThemedText type="title" style={{ color: "black" }}>
-          Shelly
-        </ThemedText>
+      <LevelUpPopup />
+      <View
+        style={{
+          paddingTop: insets.top + 10,
+          backgroundColor: "#00000020",
+          borderBottomWidth: 1,
+          borderColor: "gray",
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 20,
+            alignItems: "center",
+            paddingHorizontal: 10,
+            marginBottom: 5,
+          }}
+        >
+          <Image
+            source={require("@/assets/images/dino-hatching.png")}
+            resizeMethod="resize"
+            style={{ height: 80, width: 80, borderRadius: 40, borderWidth: 1, borderColor: "gray" }}
+          />
+          <ThemedText type="title" style={{ color: "black" }}>
+            Shelly
+          </ThemedText>
+        </View>
+        <XPBar style={{ marginHorizontal: 5 }} />
       </View>
       <FlatList
         style={{ flex: 1, flexGrow: 1 }}
-        contentContainerStyle={{ gap: 15, paddingTop: 10, paddingBottom: 10 }}
+        ListHeaderComponent={
+          <LinearGradient
+            colors={["#00000020", "#00000000"]}
+            style={{
+              height: 15,
+            }}
+          />
+        }
+        stickyHeaderIndices={[0]}
+        contentContainerStyle={{
+          gap: 15,
+          paddingBottom: 10,
+        }}
         data={messages}
         onContentSizeChange={() => {
           if (messages.length > 0) {
@@ -84,13 +116,14 @@ export default function GeminiTestScreen() {
               padding: 10,
               borderTopLeftRadius: item.user ? 25 : 0,
               borderTopRightRadius: item.user ? 0 : 25,
+              marginHorizontal: 10,
             }}
           >
             {item.text.trim()}
           </ThemedText>
         )}
       />
-      <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
+      <View style={{ flexDirection: "row", gap: 5, alignItems: "center", paddingHorizontal: 10 }}>
         <TextInput
           style={{
             color: "white",

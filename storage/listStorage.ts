@@ -1,4 +1,4 @@
-import { getItem, setItem, setItemAsync } from "expo-secure-store";
+import { deleteItemAsync, getItem, setItem, setItemAsync } from "expo-secure-store";
 
 export const INTERESTS_LIST_NAME = "Interests";
 export const GOALS_LIST_NAME = "Goals";
@@ -19,4 +19,8 @@ export async function getList(listName: string): Promise<string[]> {
 
 export async function saveList(listName: string, list: string[]): Promise<void> {
   return setItemAsync(listName, JSON.stringify(list));
+}
+
+export async function clearAllLists() {
+  return STORAGE_LISTS.forEach(async (list) => deleteItemAsync(list));
 }

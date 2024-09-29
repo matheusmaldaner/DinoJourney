@@ -25,6 +25,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="dino-hatching"
+        options={{
+          title: "dino-hatching",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="dino-companion"
         options={{
           title: "dino-companion",
@@ -34,15 +43,6 @@ export default function TabLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="audio"
-        options={{
-          title: "audio",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
-          ),
-        }}
-      />
     </Tabs>
   );
 }

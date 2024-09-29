@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { setName } from '@/storage/userData';
 import { ACCOMPLISHMENTS_LIST_NAME, GOALS_LIST_NAME, INTERESTS_LIST_NAME, saveList, STRUGGLES_LIST_NAME } from '@/storage/listStorage';
@@ -28,6 +28,7 @@ export default function DinoDaddy() {
 
 
     const router = useRouter();
+    const nav = useNavigation();
 
     {/* Text templates for the conversation */ }
     const initialText = "Hello there! My name is Gon, great to meet you. What is your name?";
@@ -54,17 +55,6 @@ export default function DinoDaddy() {
 
         return () => clearInterval(typingInterval);
     }, []);
-
-    useEffect(() => {
-        if (finalMessage) {
-            // Automatically navigate to the next screen after 2 seconds
-            const navigationTimeout = setTimeout(() => {
-                router.push('/dino-companion');
-            }, 2000);
-
-            return () => clearTimeout(navigationTimeout);
-        }
-    }, [finalMessage]);
 
     // Load and play onboarding sound
     useEffect(() => {
@@ -106,7 +96,7 @@ export default function DinoDaddy() {
                 }
                 // Navigate to the next screen after pausing the sound
                 const navigationTimeout = setTimeout(() => {
-                    router.push('/dino-companion');
+                    router.push('/dino-hatching');
                 }, 2000); // Wait 2 seconds to allow transition
 
                 return () => clearTimeout(navigationTimeout);
@@ -405,7 +395,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)', // Dark transparent background
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         justifyContent: 'center',
         alignItems: 'center',
     },

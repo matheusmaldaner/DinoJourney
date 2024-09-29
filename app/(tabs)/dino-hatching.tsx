@@ -1,16 +1,44 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Audio } from 'expo-av';
+import { fadeOut, fadeIn } from '../audioUtils';
 
-export default function DinoDaddy() {
+const background_audio = require('../../assets/audio/Explore.mp3');
+
+export default function DinoDaddy(): JSX.Element {
     const router = useRouter();
+    const [backgroundSound, setBackgroundSound] = useState<Audio.Sound | null>(null);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
+        // Load and fade in audio when the component mounts
+        const loadAndPlayBackground = async (): Promise<void> => {
+            try {
+                const { sound } = await Audio.Sound.createAsync(background_audio);
+                setBackgroundSound(sound);
+                await fadeIn(sound, 1500); // Fade in the background music over 1.5 seconds
+            } catch (error) {
+                console.error("Error loading or playing audio:", error);
+            }
+        };
+
+        loadAndPlayBackground();
+
+        // Set up the timer to navigate after 32 seconds and fade out the audio
+        const timer = setTimeout(async () => {
+            if (backgroundSound) {
+                await fadeOut(backgroundSound, 1500); // Fade out audio over 1.5 seconds
+            }
             router.push('/dino-companion');
         }, 32000);
 
-        return () => clearTimeout(timer);
+        // Cleanup function: stop the sound and clear the timer when the component unmounts
+        return () => {
+            if (backgroundSound) {
+                backgroundSound.stopAsync();
+            }
+            clearTimeout(timer);
+        };
     }, [router]);
 
     return (

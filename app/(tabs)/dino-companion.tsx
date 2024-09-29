@@ -1,24 +1,22 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet, Image, TextInput, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from "@/components/ThemedText";
 import { Audio } from 'expo-av';
-import { useLocalSearchParams } from "expo-router";
+import { fadeOut, fadeIn } from '../audioUtils';
 
 const tasking_audio = require('../../assets/audio/Tasking.mp3');
 
-
-
-export default function DinoCompanion() {
+export default function DinoCompanion(): JSX.Element {
     const [isPressed, setIsPressed] = useState(false);
     const [inputText, setInputText] = useState('');
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const displayedText = "Welcome! Ready to grow your dino companion?"; // Text for chatbot
 
     const [taskingSound, setTaskingSound] = useState<Audio.Sound | null>(null);
-    const [playing, setPlaying] = useState(false);
 
     useEffect(() => {
+        // Detect keyboard visibility
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
             setKeyboardVisible(true);
         });
@@ -32,33 +30,36 @@ export default function DinoCompanion() {
         };
     }, []);
 
-   
-    // Handle onboarding sound playback and cleanup
+    // Handle onboarding sound playback with fade in and cleanup with fade out
     useEffect(() => {
         const loadAndPlayTasking = async () => {
-          try {
-            // Load Tasking Audio
-            const { sound: tasking } = await Audio.Sound.createAsync(tasking_audio);
-            setTaskingSound(tasking);
+            try {
+                // Load Tasking Audio
+                const { sound: tasking } = await Audio.Sound.createAsync(tasking_audio);
+                setTaskingSound(tasking);
 
-            // Play Tasking music
-            await tasking.playAsync();
-            setPlaying(true);
-          } catch (error) {
-            console.log("Error loading or playing audio:", error);
-          }
+                // Fade in Tasking music
+                await fadeIn(tasking, 1500);
+            } catch (error) {
+                console.error("Error loading or playing audio:", error);
+            }
         };
 
         loadAndPlayTasking();
 
-        // Cleanup: Stop the sound when the component unmounts
+        // Cleanup: Fade out and unload the sound when the component unmounts
         return () => {
-            if (taskingSound) {
-                taskingSound.stopAsync();
-                taskingSound.unloadAsync(); // Free resources
-            }
+            const stopAndUnloadTasking = async () => {
+                if (taskingSound) {
+                    await fadeOut(taskingSound, 1500); // Fade out before stopping
+                    await taskingSound.stopAsync();
+                    await taskingSound.unloadAsync(); // Free resources
+                }
+            };
+            stopAndUnloadTasking();
         };
     }, []);
+
     return (
         <View style={styles.container}>
             {/* Navbar Section */}
@@ -105,7 +106,7 @@ export default function DinoCompanion() {
                     onPressOut={() => setIsPressed(false)}
                 >
                     <Image
-                        source={require('../../assets/images/dino-submit.png')}  // Use your dino-submit image
+                        source={require('../../assets/images/dino-submit.png')}
                         style={styles.buttonImage}
                     />
                 </TouchableOpacity>
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
     },
     textOverlay: {
         position: 'absolute',
-        top: '35%', 
+        top: '35%',
         left: '15%',
         right: '15%',
         justifyContent: 'center',
@@ -193,10 +194,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttonPressed: {
-        opacity: 0.8, 
+        opacity: 0.8,
     },
     buttonImage: {
-        width: 40, 
+        width: 40,
         height: 40,
         resizeMode: 'contain',
     },

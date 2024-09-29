@@ -7,13 +7,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { XPBar } from "@/components/XPBar";
 import { LevelUpPopup } from "@/components/LevelUpPopup";
-import { Audio } from 'expo-av';
+import { Audio } from "expo-av";
 
 // Import keyboard sound player utility
 import { playTypingSound, unloadTypingSound } from "../keyboardSoundPlayer";
 
 // Import the notification sound
-const notificationSound = require('../../assets/audio/App_Sounds/msg_notif.wav');
+const notificationSound = require("../../assets/audio/App_Sounds/msg_notif.wav");
 
 type message = {
   user: boolean;
@@ -41,7 +41,7 @@ export default function GeminiTestScreen() {
     // Initial API response on mount
     sendMessageAndGetResponse("hello").then((result) => {
       console.log("response:", result);
-      setResponses(prevMessages => [...prevMessages, { user: false, text: result }]);
+      setResponses((prevMessages) => [...prevMessages, { user: false, text: result }]);
       playNotificationSound(); // Play sound for received message
     });
 
@@ -60,8 +60,7 @@ export default function GeminiTestScreen() {
     setPrompt("");
     const result = await sendMessageAndGetResponse(prompt);
     console.log("response:", result);
-    setResponses(result);
-    setResponses([...messages, { user: true, text: prompt },{user: false, text: result}]);
+    setResponses([...messages, { user: true, text: prompt }, { user: false, text: result }]);
     playNotificationSound(); // Play sound for received response
   };
 

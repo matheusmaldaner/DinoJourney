@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { setName } from '@/storage/userData';
 import { GOALS_LIST_NAME, INTERESTS_LIST_NAME, saveList, STRUGGLES_LIST_NAME } from '@/storage/listStorage';
 import { fadeOut, fadeIn } from '../audioUtils';
 
 const onboarding_audio = require('../../assets/audio/Music/Onboarding.mp3');
-const button_click_audio = require('../../assets/audio/App_Sounds/press.mp3'); // Import the button click sound effect
+const button_click_audio = require('../../assets/audio/App_Sounds/press.mp3');
 
 export default function DinoDaddy(): JSX.Element {
     const [displayedText, setDisplayedText] = useState("");
@@ -28,7 +28,6 @@ export default function DinoDaddy(): JSX.Element {
     const [onboardingSound, setOnboardingSound] = useState<Audio.Sound | null>(null);
     const [buttonClickSound, setButtonClickSound] = useState<Audio.Sound | null>(null);
     const router = useRouter();
-    const nav = useNavigation();
 
     // Text templates for the conversation
     const initialText = "Hello there! My name is Gon, great to meet you. What is your name?";
@@ -97,12 +96,36 @@ export default function DinoDaddy(): JSX.Element {
         }
     }, [finalMessage, onboardingSound]);
 
+    // Handle the transition to the next page after submitting the final message
+    useEffect(() => {
+        if (finalMessage) {
+            const handleNavigation = async () => {
+                if (onboardingSound) {
+                    // Fade out the onboarding sound
+                    await fadeOut(onboardingSound, 500);
+                }
+                router.push('/dino-hatching');
+            };
+
+            handleNavigation();
+        }
+    }, [finalMessage, onboardingSound]);
+
+    // Utility function to handle button click sound
+    const playButtonClickSound = async () => {
+        if (buttonClickSound) {
+            try {
+                await buttonClickSound.replayAsync(); // Play button click sound
+            } catch (error) {
+                console.error("Error playing button click sound:", error);
+            }
+        }
+    };
+
     // Handle the name submission
     const handleNameSubmit = async () => {
         if (userName.trim()) {
-            if (buttonClickSound) {
-                await buttonClickSound.replayAsync(); // Play button click sound
-            }
+            await playButtonClickSound();
             setName(userName.trim());
             const personalizedText = personalizedTextTemplate.replace("[NAME]", userName);
 
@@ -123,9 +146,7 @@ export default function DinoDaddy(): JSX.Element {
     // Handle the interests submission
     const handleInterestSubmit = async () => {
         if (interests.trim() && interest2.trim()) {
-            if (buttonClickSound) {
-                await buttonClickSound.replayAsync(); // Play button click sound
-            }
+            await playButtonClickSound();
             const interestResponse = interestResponseTemplate
                 .replace("[Interest 1]", interests)
                 .replace("[Interest 2]", interest2);
@@ -148,9 +169,7 @@ export default function DinoDaddy(): JSX.Element {
     // Handle the goal submission
     const handleGoalSubmit = async () => {
         if (goals.trim()) {
-            if (buttonClickSound) {
-                await buttonClickSound.replayAsync(); // Play button click sound
-            }
+            await playButtonClickSound();
             const barrierQuestion = barrierQuestionTemplate.replace("[goal]", goals);
             saveList(GOALS_LIST_NAME, [goals]);
 
@@ -171,9 +190,7 @@ export default function DinoDaddy(): JSX.Element {
     // Handle the barriers submission
     const handleBarriersSubmit = async () => {
         if (barriers.trim()) {
-            if (buttonClickSound) {
-                await buttonClickSound.replayAsync(); // Play button click sound
-            }
+            await playButtonClickSound();
             setDisplayedText("");
             setShowBarriersInput(false);
             setTypingComplete(false);
@@ -238,7 +255,7 @@ export default function DinoDaddy(): JSX.Element {
                 </View>
             )}
 
-            {/* Popup for Interests Input */}
+            {/* Additional Popups for Interests, Goals, and Barriers */}
             {showInterestInput && (
                 <View style={styles.overlay}>
                     <View style={styles.inputContainer}>
@@ -261,8 +278,6 @@ export default function DinoDaddy(): JSX.Element {
                     </View>
                 </View>
             )}
-
-            {/* Popup for Goals Input */}
             {showGoalInput && (
                 <View style={styles.overlay}>
                     <View style={styles.inputContainer}>
@@ -279,8 +294,6 @@ export default function DinoDaddy(): JSX.Element {
                     </View>
                 </View>
             )}
-
-            {/* Popup for Barriers Input */}
             {showBarriersInput && (
                 <View style={styles.overlay}>
                     <View style={styles.inputContainer}>

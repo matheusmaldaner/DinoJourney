@@ -4,79 +4,51 @@ import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
-
+import { fadeOut, fadeIn } from '../audioUtils';
 
 const idle_audio = require('../../assets/audio/Idle.mp3');
 
-export default function HomeScreen() {
-    const [isPressed, setIsPressed] = useState(false);
+export default function HomeScreen(): JSX.Element {
+    const [isPressed, setIsPressed] = useState<boolean>(false);
     const [idleSound, setIdleSound] = useState<Audio.Sound | null>(null);
-    const [playing, setPlaying] = useState(false);
+    const [buttonClickSound, setButtonClickSound] = useState<Audio.Sound | null>(null);
     const router = useRouter();
 
-    const handleNavigation = () => {
-        if (idleSound) {
-            idleSound.pauseAsync();
+    const handleNavigation = async (): Promise<void> => {
+        try {
+            if (buttonClickSound) {
+                await buttonClickSound.replayAsync(); // Play button click sound when navigating
+            }
+            if (idleSound) {
+                await fadeOut(idleSound, 500); // Fade out over 1/2 second
+            }
+            router.push('/dino-daddy');
+        } catch (error) {
+            console.error("Error handling navigation or playing button sound:", error);
         }
-        router.push('/dino-daddy');
     };
-
-    useEffect(() => {
-        const loadAndPlayOnboarding = async () => {
-            try {
-
-                // Load Idle Audio
-                const { sound: idle } = await Audio.Sound.createAsync(idle_audio);
-                setIdleSound(idle);
-
-                // Stop Idle music if playing
-                await idle.pauseAsync();
-
-                // Play Idle music
-                await idle.playAsync();
-                setPlaying(true);
-            } catch (error) {
-                console.log("Error loading or playing audio:", error);
-            }
-        };
-
-        loadAndPlayOnboarding();
-
-        // Cleanup: Stop both sounds when the component unmounts
-        return () => {
-            if (idleSound) {
-                idleSound.stopAsync();
-            }
-            if (idleSound) {
-                idleSound.stopAsync();
-            }
-        };
-    }, []);
 
     return (
         <View style={styles.container}>
             {/* Navbar Section */}
-            <View style={styles.navbar}>
+            {/* <View style={styles.navbar}>
                 <ThemedText type="defaultSemiBold">APP NAME</ThemedText>
-            </View>
+            </View> */}
 
             {/* Image Section */}
             <View style={styles.imageSection}>
                 <Image
-                    source={require('../../assets/gifs/dino-heart.gif')}
+                    source={require('../../assets/images/dino-baby-upgrade.png')}
                     style={styles.image}
                 />
             </View>
 
             {/* Text Section */}
             <View style={styles.textSection}>
-                <ThemedText type="defaultSemiBold" style={styles.largerText}>
+                <ThemedText type="defaultSemiBold" style={styles.centeredText}>
                     Crack the Shell - Hack to Excel!{"\n"}{"\n"}
-                </ThemedText>
-                <ThemedText type="defaultSemiBold" style={styles.smallerText}>
                     Grow your dinosaurs companion and reach your personal goals
                 </ThemedText>
-
             </View>
 
             <View style={styles.buttonSection}>
@@ -85,7 +57,16 @@ export default function HomeScreen() {
                         styles.button,
                         isPressed ? styles.buttonPressed : null
                     ]}
-                    onPressIn={() => setIsPressed(true)}
+                    onPressIn={async () => {
+                        setIsPressed(true);
+                        if (buttonClickSound) {
+                            try {
+                                await buttonClickSound.replayAsync(); // Play button click sound when pressing the button
+                            } catch (error) {
+                                console.error("Error playing button click sound:", error);
+                            }
+                        }
+                    }}
                     onPressOut={() => setIsPressed(false)}
                     onPress={handleNavigation}
                 >
@@ -130,18 +111,9 @@ const styles = StyleSheet.create({
         flex: 2,
         justifyContent: 'center',
         alignItems: 'center',
-
     },
-    smallerText: {
+    centeredText: {
         textAlign: 'center',
-        fontFamily: 'InriaSerif',
-        fontSize: 16,
-        marginBottom: 30
-    },
-    largerText: {
-        textAlign: 'center',
-        fontFamily: 'InriaSerifBold',
-        fontSize: 24
     },
     buttonSection: {
         flex: 1.2,

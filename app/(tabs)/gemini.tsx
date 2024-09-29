@@ -7,7 +7,7 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sendMessageAndGetResponse } from "@/gemini/responseGenerator";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -22,14 +22,22 @@ export default function GeminiTestScreen() {
   const [messages, setResponses] = useState<message[]>([]);
   const textColor = useThemeColor({ light: "black", dark: "white" }, "text");
 
+  useEffect(() => {
+    sendMessageAndGetResponse("hello").then((result) => {
+      console.log("response:", result);
+      setResponse(result);
+      setResponses([...messages, { user: false, text: result }]);
+    });
+  }, []);
+
   const fetchResponse = async () => {
     console.log("fetching response for prompt:", prompt);
     setResponses([...messages, { user: true, text: prompt }]);
+    setPrompt("");
     const result = await sendMessageAndGetResponse(prompt);
     console.log("response:", result);
     setResponse(result);
     setResponses([...messages, { user: true, text: prompt }, { user: false, text: result }]);
-    setPrompt("");
   };
 
   return (
@@ -38,9 +46,9 @@ export default function GeminiTestScreen() {
       headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}
     >
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Gemini</ThemedText>
+        <ThemedText type="title">Shelly</ThemedText>
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
+      <ThemedText>Talk to Shelly</ThemedText>
       {messages.map((response, index) => (
         <ThemedText
           key={index}

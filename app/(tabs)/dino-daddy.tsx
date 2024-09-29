@@ -4,6 +4,8 @@ import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity, Keyboard } 
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
+import { setName } from '@/storage/userData';
+import { ACCOMPLISHMENTS_LIST_NAME, GOALS_LIST_NAME, INTERESTS_LIST_NAME, saveList, STRUGGLES_LIST_NAME } from '@/storage/listStorage';
 
 const onboarding_audio = require('../../assets/audio/Onboarding.mp3');
 
@@ -11,9 +13,9 @@ export default function DinoDaddy() {
     const [displayedText, setDisplayedText] = useState("");
     const [typingComplete, setTypingComplete] = useState(false);
     const [showNameInput, setShowNameInput] = useState(false);
-    const [showInterestInput, setShowInterestInput] = useState(false); 
-    const [showGoalInput, setShowGoalInput] = useState(false); 
-    const [showBarriersInput, setShowBarriersInput] = useState(false); 
+    const [showInterestInput, setShowInterestInput] = useState(false);
+    const [showGoalInput, setShowGoalInput] = useState(false);
+    const [showBarriersInput, setShowBarriersInput] = useState(false);
     const [userName, setUserName] = useState("");
     const [interests, setInterests] = useState("");
     const [interest2, setInterest2] = useState("");
@@ -25,9 +27,9 @@ export default function DinoDaddy() {
     const [playing, setPlaying] = useState(false);
 
 
-    const router = useRouter(); 
+    const router = useRouter();
 
-    {/* Text templates for the conversation */}
+    {/* Text templates for the conversation */ }
     const initialText = "Hello there! My name is Gon, great to meet you. What is your name?";
     const personalizedTextTemplate = "Great to meet you, [NAME]! To help match you with the perfect companion, could you share a bit about your interests?";
     const interestResponseTemplate = "I love to see that you are passionate about [Interest 1] and [Interest 2]! What are some of your aspirations or goals you'd like to achieve?";
@@ -59,38 +61,38 @@ export default function DinoDaddy() {
             const navigationTimeout = setTimeout(() => {
                 router.push('/dino-companion');
             }, 2000);
-            
+
             return () => clearTimeout(navigationTimeout);
         }
     }, [finalMessage]);
 
-      // Load and play onboarding sound
-      useEffect(() => {
+    // Load and play onboarding sound
+    useEffect(() => {
         const loadAndPlayOnboarding = async () => {
-          try {
-    
-            // Load Onboarding Audio
-            const { sound: onboarding } = await Audio.Sound.createAsync(onboarding_audio);
-            setOnboardingSound(onboarding);
-    
-            // Play Onboarding music
-            await onboarding.playAsync();
-            setPlaying(true);
-          } catch (error) {
-            console.log("Error loading or playing audio:", error);
-          }
+            try {
+
+                // Load Onboarding Audio
+                const { sound: onboarding } = await Audio.Sound.createAsync(onboarding_audio);
+                setOnboardingSound(onboarding);
+
+                // Play Onboarding music
+                await onboarding.playAsync();
+                setPlaying(true);
+            } catch (error) {
+                console.log("Error loading or playing audio:", error);
+            }
         };
 
         loadAndPlayOnboarding();
 
         // Cleanup: Stop both sounds when the component unmounts
         return () => {
-          if (onboardingSound) {
-            onboardingSound.stopAsync();
-          }
-          if (onboardingSound) {
-            onboardingSound.stopAsync();
-          }
+            if (onboardingSound) {
+                onboardingSound.stopAsync();
+            }
+            if (onboardingSound) {
+                onboardingSound.stopAsync();
+            }
         };
     }, []);
 
@@ -116,6 +118,7 @@ export default function DinoDaddy() {
 
     const handleNameSubmit = () => {
         if (userName.trim()) {
+            setName(userName.trim());
             // Replace [NAME] with the actual user's name
             const personalizedText = personalizedTextTemplate.replace("[NAME]", userName);
 
@@ -146,14 +149,15 @@ export default function DinoDaddy() {
 
     const handleInterestSubmit = () => {
         if (interests.trim() && interest2.trim()) {
-        
+
             const interestResponse = interestResponseTemplate
                 .replace("[Interest 1]", interests)
                 .replace("[Interest 2]", interest2);
+            saveList(INTERESTS_LIST_NAME, [interests, interest2]);
 
             setDisplayedText("");
             setShowInterestInput(false);
-            setTypingComplete(false); 
+            setTypingComplete(false);
 
             let currentIndex = 0;
             const typingInterval = setInterval(() => {
@@ -176,6 +180,7 @@ export default function DinoDaddy() {
     const handleGoalSubmit = () => {
         if (goals.trim()) {
             const barrierQuestion = barrierQuestionTemplate.replace("[goal]", goals);
+            saveList(GOALS_LIST_NAME, [goals]);
 
             setDisplayedText("");
             setShowGoalInput(false);
@@ -204,6 +209,7 @@ export default function DinoDaddy() {
             setDisplayedText("");
             setShowBarriersInput(false);
             setTypingComplete(false);
+            saveList(STRUGGLES_LIST_NAME, [barriers]);
 
             let currentIndex = 0;
             const typingInterval = setInterval(() => {
@@ -219,6 +225,10 @@ export default function DinoDaddy() {
         }
     };
 
+    const handleAccomplishmentsSubmit = () => {
+        saveList(ACCOMPLISHMENTS_LIST_NAME, ["CHANGE ME"]);
+    }
+
     return (
         <View style={styles.container}>
             {/* Navbar Section */}
@@ -228,7 +238,7 @@ export default function DinoDaddy() {
 
             {/* Quote Bubble Section */}
             <View style={styles.quoteBubbleSection}>
-                <Image 
+                <Image
                     source={require('../../assets/images/talk-bubble-downward.png')}
                     style={styles.quoteBubbleImage}
                 />
@@ -240,7 +250,7 @@ export default function DinoDaddy() {
 
             {/* Dinosaur Image Section */}
             <View style={styles.dinoImageSection}>
-                <Image 
+                <Image
                     source={require('../../assets/images/dino-daddy.png')}
                     style={styles.dinoImage}
                 />
@@ -331,7 +341,7 @@ export default function DinoDaddy() {
                     </View>
                 </View>
             )}
-            
+
         </View>
     );
 }
@@ -342,7 +352,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#E3DFCC',
     },
     navbar: {
-        flex: 1, 
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#E3DFCC',
@@ -378,7 +388,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     dinoImage: {
-        width: '100%', 
+        width: '100%',
         height: '100%',
         resizeMode: 'contain',
     },

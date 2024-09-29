@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { setName } from '@/storage/userData';
-import { ACCOMPLISHMENTS_LIST_NAME, GOALS_LIST_NAME, INTERESTS_LIST_NAME, saveList, STRUGGLES_LIST_NAME } from '@/storage/listStorage';
+import { GOALS_LIST_NAME, INTERESTS_LIST_NAME, saveList, STRUGGLES_LIST_NAME } from '@/storage/listStorage';
 import { fadeOut, fadeIn } from '../audioUtils';
 
 const onboarding_audio = require('../../assets/audio/Onboarding.mp3');
@@ -91,7 +91,7 @@ export default function DinoDaddy(): JSX.Element {
                 // Navigate to the next screen after fading out the sound
                 const navigationTimeout = setTimeout(() => {
                     router.push('/dino-hatching');
-                }, 2000); // Wait 2 seconds to allow transition
+                }, 2000);
 
                 return () => clearTimeout(navigationTimeout);
             };
@@ -212,7 +212,7 @@ export default function DinoDaddy(): JSX.Element {
         <View style={styles.container}>
             {/* Navbar Section */}
             <View style={styles.navbar}>
-                <ThemedText type="defaultSemiBold">APP NAME</ThemedText>
+
             </View>
 
             {/* Quote Bubble Section */}
@@ -260,7 +260,65 @@ export default function DinoDaddy(): JSX.Element {
                 </View>
             )}
 
-            {/* Additional Popups for Interests, Goals, and Barriers are similar to Name Input */}
+            {/* Popup for Interests Input */}
+            {showInterestInput && (
+                <View style={styles.overlay}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.overlayText}>Describe Your Interests</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Type your first interest"
+                            value={interests}
+                            onChangeText={(text) => setInterests(text)}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Type your second interest"
+                            value={interest2}
+                            onChangeText={(text) => setInterest2(text)}
+                        />
+                        <TouchableOpacity style={styles.button} onPress={handleInterestSubmit}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
+
+            {/* Popup for Goals Input */}
+            {showGoalInput && (
+                <View style={styles.overlay}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.overlayText}>What are your goals?</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Type your goals or aspirations"
+                            value={goals}
+                            onChangeText={(text) => setGoals(text)}
+                        />
+                        <TouchableOpacity style={styles.button} onPress={handleGoalSubmit}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
+
+            {/* Popup for Barriers Input */}
+            {showBarriersInput && (
+                <View style={styles.overlay}>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.overlayText}>What barriers do you face in achieving your goal?</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Describe your barriers"
+                            value={barriers}
+                            onChangeText={(text) => setBarriers(text)}
+                        />
+                        <TouchableOpacity style={styles.button} onPress={handleBarriersSubmit}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
     );
 }

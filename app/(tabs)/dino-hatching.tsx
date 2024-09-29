@@ -16,7 +16,7 @@ export default function DinoDaddy(): JSX.Element {
             try {
                 const { sound } = await Audio.Sound.createAsync(background_audio);
                 setBackgroundSound(sound);
-                await fadeIn(sound, 1500); // Fade in the background music over 1.5 seconds
+                await fadeIn(sound, 2800); // Fade in the background music over 1.5 seconds
             } catch (error) {
                 console.error("Error loading or playing audio:", error);
             }
@@ -29,7 +29,7 @@ export default function DinoDaddy(): JSX.Element {
             if (backgroundSound) {
                 await fadeOut(backgroundSound, 1500); // Fade out audio over 1.5 seconds
             }
-            router.push('/dino-companion');
+            router.push('/dino-post-hatch');
         }, 32000);
 
         // Cleanup function: stop the sound and clear the timer when the component unmounts

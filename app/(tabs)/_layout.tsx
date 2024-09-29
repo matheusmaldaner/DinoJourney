@@ -12,7 +12,7 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
-        // tabBarStyle: { display: "none" },
+        tabBarStyle: { display: "none" },
       }}
     >
       <Tabs.Screen
@@ -37,6 +37,24 @@ export default function TabLayout() {
         name="dino-companion"
         options={{
           title: "dino-companion",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="dino-post-hatch"
+        options={{
+          title: "dino-post-hatch",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="gemini"
+        options={{
+          title: "gemini",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? "alert-circle" : "alert-circle-outline"} color={color} />
           ),

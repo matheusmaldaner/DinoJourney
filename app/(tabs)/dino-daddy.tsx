@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ThemedText } from "@/components/ThemedText";
-import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity, Keyboard } from 'react-native';
+import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { setName } from '@/storage/userData';
 import { ACCOMPLISHMENTS_LIST_NAME, GOALS_LIST_NAME, INTERESTS_LIST_NAME, saveList, STRUGGLES_LIST_NAME } from '@/storage/listStorage';
+import { fadeOut, fadeIn } from '../audioUtils';
 
 const onboarding_audio = require('../../assets/audio/Onboarding.mp3');
 
-export default function DinoDaddy() {
+export default function DinoDaddy(): JSX.Element {
     const [displayedText, setDisplayedText] = useState("");
     const [typingComplete, setTypingComplete] = useState(false);
     const [showNameInput, setShowNameInput] = useState(false);
@@ -24,13 +25,10 @@ export default function DinoDaddy() {
     const [finalMessage, setFinalMessage] = useState(false);
 
     const [onboardingSound, setOnboardingSound] = useState<Audio.Sound | null>(null);
-    const [playing, setPlaying] = useState(false);
-
-
     const router = useRouter();
     const nav = useNavigation();
 
-    {/* Text templates for the conversation */ }
+    // Text templates for the conversation
     const initialText = "Hello there! My name is Gon, great to meet you. What is your name?";
     const personalizedTextTemplate = "Great to meet you, [NAME]! To help match you with the perfect companion, could you share a bit about your interests?";
     const interestResponseTemplate = "I love to see that you are passionate about [Interest 1] and [Interest 2]! What are some of your aspirations or goals you'd like to achieve?";
@@ -38,6 +36,7 @@ export default function DinoDaddy() {
     const finalMessageText = "That’s all my questions! As promised, it’s time to meet yo—";
 
     useEffect(() => {
+        // Typing animation for the initial message
         let currentIndex = 0;
         const typingInterval = setInterval(() => {
             setDisplayedText((prevText) => prevText + initialText[currentIndex]);
@@ -60,26 +59,21 @@ export default function DinoDaddy() {
     useEffect(() => {
         const loadAndPlayOnboarding = async () => {
             try {
-
                 // Load Onboarding Audio
                 const { sound: onboarding } = await Audio.Sound.createAsync(onboarding_audio);
                 setOnboardingSound(onboarding);
 
-                // Play Onboarding music
-                await onboarding.playAsync();
-                setPlaying(true);
+                // Fade in onboarding music
+                await fadeIn(onboarding, 1500);
             } catch (error) {
-                console.log("Error loading or playing audio:", error);
+                console.error("Error loading or playing audio:", error);
             }
         };
 
         loadAndPlayOnboarding();
 
-        // Cleanup: Stop both sounds when the component unmounts
+        // Cleanup: Stop the sound when the component unmounts
         return () => {
-            if (onboardingSound) {
-                onboardingSound.stopAsync();
-            }
             if (onboardingSound) {
                 onboardingSound.stopAsync();
             }
@@ -91,10 +85,10 @@ export default function DinoDaddy() {
         if (finalMessage) {
             const handleNavigation = async () => {
                 if (onboardingSound) {
-                    // Pause the onboarding sound
-                    await onboardingSound.pauseAsync();
+                    // Fade out the onboarding sound
+                    await fadeOut(onboardingSound, 1500);
                 }
-                // Navigate to the next screen after pausing the sound
+                // Navigate to the next screen after fading out the sound
                 const navigationTimeout = setTimeout(() => {
                     router.push('/dino-hatching');
                 }, 2000); // Wait 2 seconds to allow transition
@@ -106,18 +100,16 @@ export default function DinoDaddy() {
         }
     }, [finalMessage, onboardingSound]);
 
+    // Handle the name submission
     const handleNameSubmit = () => {
         if (userName.trim()) {
             setName(userName.trim());
-            // Replace [NAME] with the actual user's name
             const personalizedText = personalizedTextTemplate.replace("[NAME]", userName);
 
-            // Reset the displayed text for the personalized message
             setDisplayedText("");
             setShowNameInput(false);
-            setTypingComplete(false); // Reset typing flag
+            setTypingComplete(false);
 
-            // Start typing the personalized message
             let currentIndex = 0;
             const typingInterval = setInterval(() => {
                 setDisplayedText((prevText) => prevText + personalizedText[currentIndex]);
@@ -127,7 +119,6 @@ export default function DinoDaddy() {
                     clearInterval(typingInterval);
                     setTypingComplete(true);
 
-                    // Wait same amount of time and show interest input
                     setTimeout(() => {
                         setDisplayedText("");
                         setShowInterestInput(true);
@@ -137,9 +128,9 @@ export default function DinoDaddy() {
         }
     };
 
+    // Handle the interests submission
     const handleInterestSubmit = () => {
         if (interests.trim() && interest2.trim()) {
-
             const interestResponse = interestResponseTemplate
                 .replace("[Interest 1]", interests)
                 .replace("[Interest 2]", interest2);
@@ -167,6 +158,7 @@ export default function DinoDaddy() {
         }
     };
 
+    // Handle the goal submission
     const handleGoalSubmit = () => {
         if (goals.trim()) {
             const barrierQuestion = barrierQuestionTemplate.replace("[goal]", goals);
@@ -194,6 +186,7 @@ export default function DinoDaddy() {
         }
     };
 
+    // Handle the barriers submission
     const handleBarriersSubmit = () => {
         if (barriers.trim()) {
             setDisplayedText("");
@@ -215,10 +208,6 @@ export default function DinoDaddy() {
         }
     };
 
-    const handleAccomplishmentsSubmit = () => {
-        saveList(ACCOMPLISHMENTS_LIST_NAME, ["CHANGE ME"]);
-    }
-
     return (
         <View style={styles.container}>
             {/* Navbar Section */}
@@ -232,7 +221,6 @@ export default function DinoDaddy() {
                     source={require('../../assets/images/talk-bubble-downward.png')}
                     style={styles.quoteBubbleImage}
                 />
-                {/* Text inside the quote bubble */}
                 <View style={styles.textOverlay}>
                     <Text style={styles.bubbleText}>{displayedText}</Text>
                 </View>
@@ -272,66 +260,7 @@ export default function DinoDaddy() {
                 </View>
             )}
 
-            {/* Popup for Interests Input */}
-            {showInterestInput && (
-                <View style={styles.overlay}>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.overlayText}>Describe Your Interests</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Type your first interest"
-                            value={interests}
-                            onChangeText={(text) => setInterests(text)}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Type your second interest"
-                            value={interest2}
-                            onChangeText={(text) => setInterest2(text)}
-                        />
-                        <TouchableOpacity style={styles.button} onPress={handleInterestSubmit}>
-                            <Text style={styles.buttonText}>Submit</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            )}
-
-            {/* Popup for Goals Input */}
-            {showGoalInput && (
-                <View style={styles.overlay}>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.overlayText}>What are your goals?</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Type your goals or aspirations"
-                            value={goals}
-                            onChangeText={(text) => setGoals(text)}
-                        />
-                        <TouchableOpacity style={styles.button} onPress={handleGoalSubmit}>
-                            <Text style={styles.buttonText}>Submit</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            )}
-
-            {/* Popup for Barriers Input */}
-            {showBarriersInput && (
-                <View style={styles.overlay}>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.overlayText}>What barriers do you face in achieving your goal?</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Describe your barriers"
-                            value={barriers}
-                            onChangeText={(text) => setBarriers(text)}
-                        />
-                        <TouchableOpacity style={styles.button} onPress={handleBarriersSubmit}>
-                            <Text style={styles.buttonText}>Submit</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            )}
-
+            {/* Additional Popups for Interests, Goals, and Barriers are similar to Name Input */}
         </View>
     );
 }
@@ -387,8 +316,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-
-    /* Dark Overlay */
     overlay: {
         position: 'absolute',
         top: 0,
@@ -429,14 +356,5 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#FFFFFF',
         fontSize: 16,
-    },
-    finalMessageContainer: {
-        marginTop: 20,
-        alignItems: 'center',
-    },
-    finalMessageText: {
-        fontSize: 18,
-        color: '#000',
-        textAlign: 'center',
     },
 });

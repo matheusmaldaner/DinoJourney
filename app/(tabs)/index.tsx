@@ -4,42 +4,32 @@ import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
+import { fadeOut, fadeIn } from '../audioUtils';
 
 const idle_audio = require('../../assets/audio/Idle.mp3');
 
-export default function HomeScreen() {
-    const [isPressed, setIsPressed] = useState(false);
+export default function HomeScreen(): JSX.Element {
+    const [isPressed, setIsPressed] = useState<boolean>(false);
     const [idleSound, setIdleSound] = useState<Audio.Sound | null>(null);
-    const [playing, setPlaying] = useState(false);
-    const router = useRouter(); 
-
-    const handleNavigation = () => {
-        if (idleSound) {
-            // Pause the onboarding sound
-            idleSound.pauseAsync();
-        }
-        router.push('/dino-daddy'); 
+    const router = useRouter();
+  
+    const handleNavigation = async (): Promise<void> => {
+      if (idleSound) {
+        await fadeOut(idleSound, 1500); // Fade out over 1.5 seconds
+      }
+      router.push('/dino-daddy');
     };
-
+  
     useEffect(() => {
-        const loadAndPlayOnboarding = async () => {
-          try {
-
-            // Load Idle Audio
-            const { sound: idle } = await Audio.Sound.createAsync(idle_audio);
-            setIdleSound(idle);
-    
-            // Stop Idle music if playing
-            await idle.pauseAsync();
-    
-            // Play Idle music
-            await idle.playAsync();
-            setPlaying(true);
-          } catch (error) {
-            console.log("Error loading or playing audio:", error);
-          }
-        };
-
+      const loadAndPlayOnboarding = async (): Promise<void> => {
+        try {
+          const { sound: idle } = await Audio.Sound.createAsync(idle_audio);
+          setIdleSound(idle);
+          await fadeIn(idle, 1500); // Fade in over 1.5 seconds
+        } catch (error) {
+          console.error("Error loading or playing audio:", error);
+        }
+      };
         loadAndPlayOnboarding();
 
         // Cleanup: Stop both sounds when the component unmounts

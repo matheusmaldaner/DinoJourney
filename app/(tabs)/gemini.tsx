@@ -91,7 +91,6 @@ export default function GeminiTestScreen() {
       style={{
         paddingTop: insets.top + 10,
         paddingBottom: insets.bottom + 10,
-        paddingHorizontal: 10,
         flex: 1,
       }}
       start={{ x: 0, y: 0 }}
@@ -104,6 +103,7 @@ export default function GeminiTestScreen() {
           backgroundColor: "#00000020",
           borderBottomWidth: 1,
           borderColor: "gray",
+          alignSelf: "stretch",
         }}
       >
         <View

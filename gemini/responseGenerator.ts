@@ -73,29 +73,34 @@ async function classifyConversation(): Promise<ConversationType> {
 }
 
 export const sendMessageAndGetResponse = async (message: string): Promise<string> => {
-  const chat = await getChat();
-  const oldHistory = await chat.getHistory();
   try {
-    const userName = await getUsersName();
-    const conversationType = await classifyConversation();
-    let prompt = message;
-    if (conversationType === "productive") {
-      prompt = `Consider some playful banter in your response. Here's ${userName}'s message: ${message}`;
-    } else if (conversationType === "banter") {
-      prompt = `Talk more about goals and productivity. Here's ${userName}'s message: ${message}`;
-    } else {
-      prompt = `Your reply needs to be short. Here's ${userName}'s message: ${message}`;
+    const chat = await getChat();
+    const oldHistory = await chat.getHistory();
+    try {
+      const userName = await getUsersName();
+      const conversationType = await classifyConversation();
+      let prompt = message;
+      if (conversationType === "productive") {
+        prompt = `Consider some playful banter in your response. Here's ${userName}'s message: ${message}`;
+      } else if (conversationType === "banter") {
+        prompt = `Talk more about goals and productivity. Here's ${userName}'s message: ${message}`;
+      } else {
+        prompt = `Your reply needs to be short. Here's ${userName}'s message: ${message}`;
+      }
+      console.log("Prompt:", prompt);
+      const response = await chat.sendMessage(message);
+      // This will prevent trying to run extra queries if .text() throws an error
+      const ret = response.response.text();
+      updateMemory(message);
+      updateXP(message);
+      return ret;
+    } catch (e) {
+      console.log("Error when messaging shelly:", e);
+      mainChat = model.startChat({ history: oldHistory });
+      return "I'm sorry, I'm not sure what you mean.";
     }
-    console.log("Prompt:", prompt);
-    const response = await chat.sendMessage(message);
-    // This will prevent trying to run extra queries if .text() throws an error
-    const ret = response.response.text();
-    updateMemory(message);
-    updateXP(message);
-    return ret;
   } catch (e) {
-    console.log("Error when messaging shelly:", e);
-    mainChat = model.startChat({ history: oldHistory });
+    mainChat = null;
     return "I'm sorry, I'm not sure what you mean.";
   }
 };

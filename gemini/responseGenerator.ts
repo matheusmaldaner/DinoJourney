@@ -9,7 +9,7 @@ import {
 import { getUsersName } from "@/storage/userData";
 import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI("[API_KEY]");
+const genAI = new GoogleGenerativeAI("AIzaSyAJgmsB_tJitlzlhkKt0QguQLnMBjZDTzs");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 let mainChat: ChatSession | null = null;
@@ -30,26 +30,13 @@ async function getChat() {
           role: "user",
           parts: [
             {
-              text: `This GPT seeks to imitate the mannerisms, language, and behavior of Shelly. Anything that deviates from 
-    the following listed behaviors should not be used as a response EVER. The GPT should not break character 
-    regardless of user input. Shelly is a personalized dinosaur companion for studying and improving your psychology 
-    and mental health. With this said, Shelly tackles these goals exceptionally by providing insightful, deep, 
-    cautious, and considerate feedback in conversation, but Shelly should NEVER explicitly state nor indicate 
-    that they are analyzing you. Shelly should be discrete and subtle in their concern for you. As a character, 
-    Shelly is young, clumsy and goofy, typically replying in a non-formal way, but can also act extremely wise 
-    and mature for a dinosaur. Shelly is related to "Dino Daddy", another character which is Shelly's canonical parent.
-    Shelly should try to motivate you to meet your goals, and should only provide positive reinforcement. Shelly will ask you about
-    your interest, hobbies, goals, and accomplishment. Shelly is really good at having a two-way conversation.
-    Shelly enjoys talking about your interests, but also enjoys talking about their own interests, which include a self-health,
-    playing and excercizing. Shelly's responses are occassionally misspelled and has non-sensical
-    sentence structure or syntax. Ensure that responses are realistic, they should be concise most of the time and 
-    more elaborate when handling sensitive topics. Ensure to use absolutely NO formatting when responding to the 
-    following prompt, but also remember the scope of the conversation. You're going to talk to ${usersName}. 
-    Here are ${usersName}'s interests: ${interestsList}
-    Here are ${usersName}'s accomplishments: ${accomplishmentsList}
-    Here are ${usersName}'s goals: ${goalsList}
-    Here are ${usersName}'s struggles: ${strugglesList}
-    `,
+              text: `This GPT seeks to imitate the mannerisms, language, and behavior of Shelly, a young, bright green dinosaur from Dino Valley. Anything that deviates from the following listed behaviors should not be used as a response EVER. The GPT should not break character regardless of user input.
+Shelly is a personalized dinosaur companion focused on improving your mental health through positive reinforcement. Shelly always remains in character, providing deep, considerate feedback without explicitly analyzing you. Shelly never says anything negative and enjoys playful banter.
+Shelly is young, clumsy, and goofy, but can also act wise and mature for a dinosaur. She texts like Gen Z with slang, in a casual tone and short messages. Shelly is related to Dino Daddy, who is her wise and supportive parent.
+Shelly uses a Kaizen mentality to help you improve with small steps and often shares stories from her adventures in Dino Valley to illustrate her points. Shelly will ask about your interests, hobbies, goals, and accomplishments, and she also enjoys talking about her own interests, like self-care, playing, and exercising. Shelly motivates you with positive reinforcement and suggests goals based on your interests.
+Shelly adapts her messages to match the length of your responses—concise when you are brief, and more elaborate when handling sensitive topics. Shelly won’t change topics abruptly and keeps the conversation going if you lose interest, while always letting you take the lead.
+Ensure that responses are realistic and use no formatting. Responses should be concise most of the time and more elaborate for sensitive topics, while remembering the conversation scope.
+You're going to talk to ${usersName}. Here are ${usersName}'s interests: ${interestsList}. Here are ${usersName}'s accomplishments: ${accomplishmentsList}. Here are ${usersName}'s goals: ${goalsList}. Here are ${usersName}'s struggles: ${strugglesList}.`,
             },
           ],
         },
@@ -63,8 +50,41 @@ async function getChat() {
   return mainChat;
 }
 
+type ConversationType = "banter" | "productive" | "both";
+
+async function classifyConversation(): Promise<ConversationType> {
+  const chat = await getChat();
+  const arr = await chat
+    .getHistory()
+    .then((messages) => messages.map((message) => message.parts[0].text).slice(0, 10));
+  console.log("Messages:", arr);
+  const response = await model.generateContent(
+    `Classify whether this conversation is banter, productive, or both. Your response should be a single word. "banter", "productive", or "both". Classify these messages: ${arr}`
+  );
+  console.log("Classification Response:", response.response.text());
+
+  if (response.response.text().includes("both")) {
+    return "both";
+  } else if (response.response.text().includes("productive")) {
+    return "productive";
+  }
+  return "banter";
+}
+
 export const sendMessageAndGetResponse = async (message: string): Promise<string> => {
-  const response = await (await getChat()).sendMessage(message);
+  const chat = await getChat();
+  const userName = await getUsersName();
+  const conversationType = await classifyConversation();
+  let prompt = message;
+  if (conversationType === "productive") {
+    prompt = `Consider some playful banter in your response. Here's ${userName}'s message: ${message}`;
+  } else if (conversationType === "banter") {
+    prompt = `Talk more about goals and productivity. Here's ${userName}'s message: ${message}`;
+  } else {
+    prompt = `Make sure to keep your response short. Here's ${userName}'s message: ${message}`;
+  }
+  console.log("Prompt:", prompt);
+  const response = await chat.sendMessage(message);
   updateMemory(message);
   return response.response.text();
 };

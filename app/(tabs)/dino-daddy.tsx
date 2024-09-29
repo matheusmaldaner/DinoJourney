@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { setName } from '@/storage/userData';
 import { GOALS_LIST_NAME, INTERESTS_LIST_NAME, saveList, STRUGGLES_LIST_NAME } from '@/storage/listStorage';
-import { fadeOut, fadeIn } from '../audioUtils';
+import { fadeOut, fadeIn, loadSoundForObject } from '../audioUtils';
 
 const onboarding_audio = require('../../assets/audio/Music/Onboarding.mp3');
 const button_click_audio = require('../../assets/audio/App_Sounds/press.mp3');
@@ -25,8 +25,8 @@ export default function DinoDaddy(): JSX.Element {
     const [barriers, setBarriers] = useState("");
     const [finalMessage, setFinalMessage] = useState(false);
 
-    const [onboardingSound, setOnboardingSound] = useState<Audio.Sound | null>(null);
-    const [buttonClickSound, setButtonClickSound] = useState<Audio.Sound | null>(null);
+    const onboardingSound = useRef(new Audio.Sound()).current;
+    const buttonClickSound = useRef(new Audio.Sound()).current;
     const router = useRouter();
 
     // Text templates for the conversation
@@ -47,22 +47,22 @@ export default function DinoDaddy(): JSX.Element {
                 clearInterval(typingInterval);
                 callback();
             }
-        }, 50);
+        }, 10);
     };
+
 
     useEffect(() => {
         // Load and play onboarding sound
         const loadAndPlayOnboarding = async () => {
             try {
-                const { sound: onboarding } = await Audio.Sound.createAsync(onboarding_audio);
-                setOnboardingSound(onboarding);
-                await fadeIn(onboarding, 100);
+                   await loadSoundForObject(onboardingSound, onboarding_audio).then(() => {
+                        fadeIn(onboardingSound, 100);
+                    })
 
-                // Load Button Click Sound
-                const { sound: buttonClick } = await Audio.Sound.createAsync(button_click_audio);
-                setButtonClickSound(buttonClick);
+                await loadSoundForObject(buttonClickSound, button_click_audio);
+
             } catch (error) {
-                console.error("Error loading or playing audio:", error);
+                console.log("Error loading or playing audio:", error);
             }
         };
 
@@ -77,33 +77,36 @@ export default function DinoDaddy(): JSX.Element {
             }, 2000);
         });
 
-        // Cleanup: Stop the sound when the component unmounts
-        return () => {
-            const stopAndUnload = async () => {
-                if (onboardingSound) {
-                    await onboardingSound.stopAsync();
-                    await onboardingSound.unloadAsync();
-                }
-                // Navigate to the next screen after fading out the sound
-                const navigationTimeout = setTimeout(() => {
-                    router.push('/dino-hatching');
-                }, 2000);
+        // // Cleanup: Stop the sound when the component unmounts
+        // return () => {
+        //     const stopAndUnload = async () => {
+        //         if (onboardingSound) {
+        //             await onboardingSound.stopAsync();
+        //             await onboardingSound.unloadAsync();
+        //         }
+        //         // Navigate to the next screen after fading out the sound
+        //         const navigationTimeout = setTimeout(() => {
+        //             router.push('/dino-hatching');
+        //         }, 2000);
 
-                return () => clearTimeout(navigationTimeout);
-            };
-
-            handleNavigation();
-        }
-    }, [finalMessage, onboardingSound]);
+        //         return () => clearTimeout(navigationTimeout);
+        //     };
+        //     stopAndUnload();
+        // }
+    }, []);
 
     // Handle the transition to the next page after submitting the final message
     useEffect(() => {
         if (finalMessage) {
             const handleNavigation = async () => {
+                try {
                 if (onboardingSound) {
                     // Fade out the onboarding sound
                     await fadeOut(onboardingSound, 500);
                 }
+            }catch (error) {
+                console.log("Error fading out audio:", error);
+            }
                 router.push('/dino-hatching');
             };
 
@@ -112,15 +115,15 @@ export default function DinoDaddy(): JSX.Element {
     }, [finalMessage, onboardingSound]);
 
     // Utility function to handle button click sound
-    const playButtonClickSound = async () => {
+    const playButtonClickSound = useCallback(async () => {
         if (buttonClickSound) {
             try {
                 await buttonClickSound.replayAsync(); // Play button click sound
             } catch (error) {
-                console.error("Error playing button click sound:", error);
+                console.log("Error playing button click sound:", error);
             }
         }
-    };
+    }, [buttonClickSound]);
 
     // Handle the name submission
     const handleNameSubmit = async () => {

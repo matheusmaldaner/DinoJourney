@@ -24,7 +24,7 @@ export const fadeIn = async (
   if (sound) {
     await sound.setPositionAsync(0); // Start from the beginning
     await sound.setVolumeAsync(0); // Start with zero volume
-    await sound.playAsync(); // Start playing the audio
+    await sound.replayAsync(); // Start playing the audio
 
     const intervalTime = 50; // Time between volume increases (in ms)
     const volumeStep = 1 / (duration / intervalTime); // How much to increase each step
@@ -35,3 +35,9 @@ export const fadeIn = async (
     }
   }
 };
+
+export async function loadSoundForObject(soundObject: Audio.Sound, soundFile: any) {
+    return soundObject.unloadAsync().finally(() => {
+        return soundObject.loadAsync(soundFile);
+    });
+}

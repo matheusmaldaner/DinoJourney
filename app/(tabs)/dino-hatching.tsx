@@ -1,24 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Audio } from 'expo-av';
-import { fadeOut, fadeIn } from '../audioUtils';
+import { fadeOut, fadeIn, loadSoundForObject } from '../audioUtils';
 
 const background_audio = require('../../assets/audio/Music/Explore.mp3');
 
 export default function DinoDaddy(): JSX.Element {
     const router = useRouter();
-    const [backgroundSound, setBackgroundSound] = useState<Audio.Sound | null>(null);
+    const backgroundSound = useRef(new Audio.Sound()).current;
 
     useEffect(() => {
         // Load and fade in audio when the component mounts
         const loadAndPlayBackground = async (): Promise<void> => {
             try {
-                const { sound } = await Audio.Sound.createAsync(background_audio);
-                setBackgroundSound(sound);
-                await fadeIn(sound, 500); // Fade in the background music over 1/2 seconds
+                loadSoundForObject(backgroundSound, background_audio);
+                await fadeIn(background_audio, 500); // Fade in the background music over 1/2 seconds
             } catch (error) {
-                console.error("Error loading or playing audio:", error);
+                console.log("Error loading or playing audio:", error);
             }
         };
 
@@ -26,17 +25,21 @@ export default function DinoDaddy(): JSX.Element {
 
         // Set up the timer to navigate after 32 seconds and fade out the audio
         const timer = setTimeout(async () => {
-            if (backgroundSound) {
-                await fadeOut(backgroundSound, 500); // Fade out audio over 1/2 seconds
-            }
+            try{
+                if (backgroundSound) {
+                    await fadeOut(backgroundSound, 500); // Fade out audio over 1/2 seconds
+                }
+            } catch (error) {}
             router.push('/dino-post-hatch');
         }, 32000);
 
         // Cleanup function: stop the sound and clear the timer when the component unmounts
         return () => {
+            try{
             if (backgroundSound) {
                 backgroundSound.stopAsync();
             }
+        }catch(error){}
             clearTimeout(timer);
         };
     }, []);

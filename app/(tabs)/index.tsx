@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { fadeOut, fadeIn } from '../audioUtils';
 
-const idle_audio = require('../../assets/audio/Idle.mp3');
+const idle_audio = require('../../assets/audio/Music/Idle.mp3');
 
 export default function HomeScreen(): JSX.Element {
     const [isPressed, setIsPressed] = useState<boolean>(false);

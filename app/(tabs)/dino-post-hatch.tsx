@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, Button, StyleSheet, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function DinoPostHatch() {
+export default function DinoPostHatch(): JSX.Element {
     const router = useRouter();
 
     const handleNavigation = () => {

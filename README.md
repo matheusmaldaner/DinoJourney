@@ -8,8 +8,8 @@ Dino Journey is a mental health and productivity app designed to provide non-jud
 
 ## Demo and DevPost Submission
 
-- ![YouTube](https://youtu.be/JlcKGVx0zZE)
-- ![Devpost](https://devpost.com/software/dinojourney)
+- [YouTube](https://youtu.be/JlcKGVx0zZE)
+- [Devpost](https://devpost.com/software/dinojourney)
 
 ---
 

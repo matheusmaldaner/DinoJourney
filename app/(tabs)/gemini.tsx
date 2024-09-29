@@ -1,15 +1,11 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Image, Platform, TextInput, Button, View } from "react-native";
+import { StyleSheet, TextInput, View, FlatList, TouchableOpacity, Image } from "react-native";
 
-import { Collapsible } from "@/components/Collapsible";
-import { ExternalLink } from "@/components/ExternalLink";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedTextInput } from "@/components/ThemedTextInput";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sendMessageAndGetResponse } from "@/gemini/responseGenerator";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 type message = {
   user: boolean;
@@ -20,7 +16,8 @@ export default function GeminiTestScreen() {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [messages, setResponses] = useState<message[]>([]);
-  const textColor = useThemeColor({ light: "black", dark: "white" }, "text");
+  const insets = useSafeAreaInsets();
+  const flatlist = useRef<FlatList<message>>(null);
 
   useEffect(() => {
     sendMessageAndGetResponse("hello").then((result) => {
@@ -41,35 +38,63 @@ export default function GeminiTestScreen() {
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}
+    <LinearGradient
+      colors={["#E3DFCC", "#7D7B70"]}
+      style={{
+        paddingTop: insets.top + 10,
+        paddingBottom: insets.bottom + 10,
+        paddingHorizontal: 10,
+        flex: 1,
+      }}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
     >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Shelly</ThemedText>
-      </ThemedView>
-      <ThemedText>Talk to Shelly</ThemedText>
-      {messages.map((response, index) => (
-        <ThemedText
-          key={index}
-          style={{
-            color: "white",
-            borderWidth: 1,
-            borderRadius: 25,
-            backgroundColor: response.user ? "green" : "blue",
-            padding: 10,
-            borderBottomLeftRadius: response.user ? 25 : 0,
-            borderBottomRightRadius: response.user ? 0 : 25,
-          }}
-        >
-          {response.text}
+      <View style={{ flexDirection: "row", gap: 20, alignItems: "center" }}>
+        <Image
+          source={require("@/assets/images/dino-hatching.png")}
+          resizeMethod="resize"
+          style={{ height: 80, width: 80, borderRadius: 40, borderWidth: 1, borderColor: "gray" }}
+        />
+        <ThemedText type="title" style={{ color: "black" }}>
+          Shelly
         </ThemedText>
-      ))}
-      <View style={{ flexDirection: "row", gap: 5 }}>
+      </View>
+      <FlatList
+        style={{ flex: 1, flexGrow: 1 }}
+        contentContainerStyle={{ gap: 15, paddingTop: 10, paddingBottom: 10 }}
+        data={messages}
+        onContentSizeChange={() => {
+          if (messages.length > 0) {
+            setTimeout(() => {
+              console.log("scrolling to end");
+              if (flatlist.current) flatlist.current.scrollToEnd({ animated: true });
+            }, 100);
+          }
+        }}
+        ref={flatlist}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <ThemedText
+            style={{
+              color: "white",
+              borderWidth: 1,
+              borderRadius: 25,
+              borderColor: "gray",
+              backgroundColor: item.user ? "#519e57" : "#2a75c6",
+              padding: 10,
+              borderTopLeftRadius: item.user ? 25 : 0,
+              borderTopRightRadius: item.user ? 0 : 25,
+            }}
+          >
+            {item.text.trim()}
+          </ThemedText>
+        )}
+      />
+      <View style={{ flexDirection: "row", gap: 5, alignItems: "center" }}>
         <TextInput
           style={{
-            color: textColor,
-            borderColor: "green",
+            color: "white",
+            borderColor: "#E3DFCC",
             borderRadius: 5,
             padding: 10,
             borderWidth: 1,
@@ -79,10 +104,13 @@ export default function GeminiTestScreen() {
           onChangeText={setPrompt}
           onSubmitEditing={fetchResponse}
           multiline
+          returnKeyType="done"
         />
-        <Button title="Send" onPress={fetchResponse} />
+        <TouchableOpacity onPress={fetchResponse} style={{ borderRadius: 5, minWidth: 35 }}>
+          <Ionicons name="send" size={35} color="white" />
+        </TouchableOpacity>
       </View>
-    </ParallaxScrollView>
+    </LinearGradient>
   );
 }
 

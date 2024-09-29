@@ -1,3 +1,4 @@
+import { increaseXP } from "@/managers/levelManager";
 import {
   ACCOMPLISHMENTS_LIST_NAME,
   getList,
@@ -83,28 +84,32 @@ export const sendMessageAndGetResponse = async (message: string): Promise<string
     } else if (conversationType === "banter") {
       prompt = `Talk more about goals and productivity. Here's ${userName}'s message: ${message}`;
     } else {
-      prompt = `Make sure to keep your response short. Here's ${userName}'s message: ${message}`;
+      prompt = `Your reply needs to be short. Here's ${userName}'s message: ${message}`;
     }
     console.log("Prompt:", prompt);
     const response = await chat.sendMessage(message);
+    // This will prevent trying to run extra queries if .text() throws an error
+    const ret = response.response.text();
     updateMemory(message);
-    return response.response.text();
+    updateXP(message);
+    return ret;
   } catch (e) {
+    console.log("Error when messaging shelly:", e);
     mainChat = model.startChat({ history: oldHistory });
     return "I'm sorry, I'm not sure what you mean.";
   }
 };
 
 const updateMemory = async (message: string): Promise<void> => {
-  updateInterests(message);
-  updateAccomplishments(message);
-  updateGoals(message);
-  updateStruggles(message);
+  await updateInterests(message);
+  await updateAccomplishments(message);
+  await updateGoals(message);
+  await updateStruggles(message);
 };
 
 const updateInterests = async (message: string): Promise<void> => {
   let interestsList = await getList(INTERESTS_LIST_NAME);
-  if (interestsList.length === 0) {
+  if (interestsList.length == 0) {
     interestsList = ["pizza", "cars", "dogs", "gardening"];
   }
   const prompt =
@@ -124,12 +129,8 @@ const updateInterests = async (message: string): Promise<void> => {
 
 const updateAccomplishments = async (message: string): Promise<void> => {
   let accomplishmentsList = await getList(ACCOMPLISHMENTS_LIST_NAME);
-  if (accomplishmentsList.length === 0) {
-    accomplishmentsList = [
-      "won a highschool math competition",
-      "graduated from college",
-      "got out of bed and took a shower",
-    ];
+  if (accomplishmentsList.length == 0) {
+    accomplishmentsList = [];
   }
   const prompt =
     `Update the user's accomplishments array: ${accomplishmentsList} based on this user's message: ${message}. Be conservative. ` +
@@ -149,8 +150,8 @@ const updateAccomplishments = async (message: string): Promise<void> => {
 
 const updateGoals = async (message: string): Promise<void> => {
   let goalsList = await getList(GOALS_LIST_NAME);
-  if (goalsList.length === 0) {
-    goalsList = ["get a job", "learn to play the guitar", "learn to cook"];
+  if (goalsList.length == 0) {
+    goalsList = ["be more productive"];
   }
   const prompt =
     `Update the user's goals array: ${goalsList} based on this user's message: ${message}. Be conservative. ` +
@@ -170,7 +171,7 @@ const updateGoals = async (message: string): Promise<void> => {
 
 const updateStruggles = async (message: string): Promise<void> => {
   let strugglesList = await getList(STRUGGLES_LIST_NAME);
-  if (strugglesList.length === 0) {
+  if (strugglesList.length == 0) {
     strugglesList = ["getting out of bed", "talking to people", "getting a job"];
   }
   const prompt =
@@ -186,5 +187,50 @@ const updateStruggles = async (message: string): Promise<void> => {
     saveList(STRUGGLES_LIST_NAME, struggles);
   } catch (e) {
     console.log("Error updating struggles:", e);
+  }
+};
+
+const updateXP = async (message: string): Promise<void> => {
+  const xp = await getXPFromMessage(message);
+  console.log("XP:", xp);
+  await increaseXP(xp);
+};
+
+const getXPFromMessage = async (message: string): Promise<number> => {
+  // Accomplishments are worth 75 XP
+  let sum = 0;
+  if (await evaluateIfUserAccomplishedSomething(message)) {
+    sum += 75;
+  }
+  // Vulnerability is worth 50 XP
+  if (await evaluateIfUserIsVulnerable(message)) {
+    sum += 50;
+  }
+  return sum;
+};
+
+const evaluateIfUserAccomplishedSomething = async (message: string): Promise<boolean> => {
+  try {
+    const prompt =
+      `Determine if the user accomplished something, even if it's small, based on this message: "${message}".` +
+      `You should output only "true" or "false" and nothing else. This needs to be json parseable.`;
+    const response = await model.generateContent(prompt);
+    return response.response.text().includes("true");
+  } catch (e) {
+    console.log("Error evaluating if user accomplished something:", e);
+    return false;
+  }
+};
+
+const evaluateIfUserIsVulnerable = async (message: string): Promise<boolean> => {
+  try {
+    const prompt =
+      `Determine if the user is being open/vulnerable with the audience. Talking about their problems/etc: "${message}".` +
+      `You should output only "true" or "false" and nothing else. This needs to be json parseable.`;
+    const response = await model.generateContent(prompt);
+    return response.response.text().includes("true");
+  } catch (e) {
+    console.log("Error evaluating if user is vulnerable:", e);
+    return false;
   }
 };

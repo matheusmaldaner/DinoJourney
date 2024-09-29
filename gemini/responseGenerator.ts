@@ -73,20 +73,26 @@ async function classifyConversation(): Promise<ConversationType> {
 
 export const sendMessageAndGetResponse = async (message: string): Promise<string> => {
   const chat = await getChat();
-  const userName = await getUsersName();
-  const conversationType = await classifyConversation();
-  let prompt = message;
-  if (conversationType === "productive") {
-    prompt = `Consider some playful banter in your response. Here's ${userName}'s message: ${message}`;
-  } else if (conversationType === "banter") {
-    prompt = `Talk more about goals and productivity. Here's ${userName}'s message: ${message}`;
-  } else {
-    prompt = `Make sure to keep your response short. Here's ${userName}'s message: ${message}`;
+  const oldHistory = await chat.getHistory();
+  try {
+    const userName = await getUsersName();
+    const conversationType = await classifyConversation();
+    let prompt = message;
+    if (conversationType === "productive") {
+      prompt = `Consider some playful banter in your response. Here's ${userName}'s message: ${message}`;
+    } else if (conversationType === "banter") {
+      prompt = `Talk more about goals and productivity. Here's ${userName}'s message: ${message}`;
+    } else {
+      prompt = `Make sure to keep your response short. Here's ${userName}'s message: ${message}`;
+    }
+    console.log("Prompt:", prompt);
+    const response = await chat.sendMessage(message);
+    updateMemory(message);
+    return response.response.text();
+  } catch (e) {
+    mainChat = model.startChat({ history: oldHistory });
+    return "I'm sorry, I'm not sure what you mean.";
   }
-  console.log("Prompt:", prompt);
-  const response = await chat.sendMessage(message);
-  updateMemory(message);
-  return response.response.text();
 };
 
 const updateMemory = async (message: string): Promise<void> => {

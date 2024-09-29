@@ -15,14 +15,14 @@ Dino Journey is a mental health and productivity app designed to provide non-jud
 
 ## Features
 
-- 🥚 **Egg Hatching:** Your journey begins with an egg hatching into your personal dino companion.  
-  ![Egg Hatching GIF](path_to_egg_hatching_gif)
+- 🥚 **Egg Hatching:** Hatch your own your personal dino companion.  
+  ![Egg Hatching GIF](https://i.ibb.co/CVnjhpz/hatching-gif-ezgif-com-speed.gif)
 
 - 💬 **Dino Companion Interaction:** The dino offers non-invasive, gentle prompts and positive reinforcement to support your mental health.  
-  ![Dino Talking GIF](path_to_dino_talking_gif)
+  ![Dino Talking GIF](https://i.ibb.co/Nr106mD/dino-talking-ezgif-com-speed.gif)
 
 - ❤️ **Heart Animation:** Experience moments of emotional connection as your dino companion helps you through life’s highs and lows.  
-  ![Heart Animation GIF](path_to_heart_animation_gif)
+  ![Heart Animation GIF](https://i.ibb.co/7JPLD80/heart-loop-ezgif-com-speed.gif)
 
 - 🎮 **Gamification:** Complete tasks to level up your dino companion, maintaining long-term engagement without adding pressure or guilt.
 

@@ -3,6 +3,9 @@ import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
+import { Audio } from 'expo-av';
+
+const onboarding_audio = require('../../assets/audio/Onboarding.mp3');
 
 export default function DinoDaddy() {
     const [displayedText, setDisplayedText] = useState("");
@@ -17,6 +20,10 @@ export default function DinoDaddy() {
     const [goals, setGoals] = useState("");
     const [barriers, setBarriers] = useState("");
     const [finalMessage, setFinalMessage] = useState(false);
+
+    const [onboardingSound, setOnboardingSound] = useState<Audio.Sound | null>(null);
+    const [playing, setPlaying] = useState(false);
+
 
     const router = useRouter(); 
 
@@ -56,6 +63,56 @@ export default function DinoDaddy() {
             return () => clearTimeout(navigationTimeout);
         }
     }, [finalMessage]);
+
+      // Load and play onboarding sound
+      useEffect(() => {
+        const loadAndPlayOnboarding = async () => {
+          try {
+    
+            // Load Onboarding Audio
+            const { sound: onboarding } = await Audio.Sound.createAsync(onboarding_audio);
+            setOnboardingSound(onboarding);
+    
+            // Play Onboarding music
+            await onboarding.playAsync();
+            setPlaying(true);
+          } catch (error) {
+            console.log("Error loading or playing audio:", error);
+          }
+        };
+
+        loadAndPlayOnboarding();
+
+        // Cleanup: Stop both sounds when the component unmounts
+        return () => {
+          if (onboardingSound) {
+            onboardingSound.stopAsync();
+          }
+          if (onboardingSound) {
+            onboardingSound.stopAsync();
+          }
+        };
+    }, []);
+
+    // Handle the transition to the next page after submitting the final message
+    useEffect(() => {
+        if (finalMessage) {
+            const handleNavigation = async () => {
+                if (onboardingSound) {
+                    // Pause the onboarding sound
+                    await onboardingSound.pauseAsync();
+                }
+                // Navigate to the next screen after pausing the sound
+                const navigationTimeout = setTimeout(() => {
+                    router.push('/dino-companion');
+                }, 2000); // Wait 2 seconds to allow transition
+
+                return () => clearTimeout(navigationTimeout);
+            };
+
+            handleNavigation();
+        }
+    }, [finalMessage, onboardingSound]);
 
     const handleNameSubmit = () => {
         if (userName.trim()) {

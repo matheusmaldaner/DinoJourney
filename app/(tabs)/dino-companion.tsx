@@ -1,13 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet, Image, TextInput, Keyboard } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from "@/components/ThemedText";
+import { Audio } from 'expo-av';
+import { useLocalSearchParams } from "expo-router";
 
-export default function HomeScreen() {
+const tasking_audio = require('../../assets/audio/Tasking.mp3');
+
+
+
+export default function DinoCompanion() {
     const [isPressed, setIsPressed] = useState(false);
     const [inputText, setInputText] = useState('');
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const displayedText = "Welcome! Ready to grow your dino companion?"; // Text for chatbot
+
+    const [taskingSound, setTaskingSound] = useState<Audio.Sound | null>(null);
+    const [playing, setPlaying] = useState(false);
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -23,6 +32,33 @@ export default function HomeScreen() {
         };
     }, []);
 
+   
+    // Handle onboarding sound playback and cleanup
+    useEffect(() => {
+        const loadAndPlayTasking = async () => {
+          try {
+            // Load Tasking Audio
+            const { sound: tasking } = await Audio.Sound.createAsync(tasking_audio);
+            setTaskingSound(tasking);
+
+            // Play Tasking music
+            await tasking.playAsync();
+            setPlaying(true);
+          } catch (error) {
+            console.log("Error loading or playing audio:", error);
+          }
+        };
+
+        loadAndPlayTasking();
+
+        // Cleanup: Stop the sound when the component unmounts
+        return () => {
+            if (taskingSound) {
+                taskingSound.stopAsync();
+                taskingSound.unloadAsync(); // Free resources
+            }
+        };
+    }, []);
     return (
         <View style={styles.container}>
             {/* Navbar Section */}

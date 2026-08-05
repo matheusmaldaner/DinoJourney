@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, Image, Text, TextInput, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { setName } from '@/storage/userData';
@@ -233,12 +232,7 @@ export default function DinoDaddy(): JSX.Element {
             </View>
 
             {/* Footer Section */}
-            <LinearGradient
-                colors={['#E3DFCC', '#7D7B70']}
-                style={styles.footer}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-            />
+            <View style={styles.footer} />
 
             {/* Popup for Name Input */}
             {showNameInput && (
@@ -426,6 +420,7 @@ const styles = StyleSheet.create({
         flex: 1.8,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#7D7B70',
     },
     overlay: {
         position: 'absolute',

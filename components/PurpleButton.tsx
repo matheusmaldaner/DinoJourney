@@ -8,7 +8,7 @@ export const PurpleButton = (props: PurpleButtonProps) => {
     <TouchableOpacity
       style={{
         backgroundColor: "#7c7fad",
-        borderRadius: 15,
+        borderRadius: 12,
         alignSelf: "stretch",
         paddingVertical: 10,
         alignItems: "center",

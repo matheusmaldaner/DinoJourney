@@ -4,7 +4,6 @@ import { ThemedText } from "@/components/ThemedText";
 import { useEffect, useRef, useState } from "react";
 import { sendMessageAndGetResponse } from "@/gemini/responseGenerator";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import { XPBar } from "@/components/XPBar";
 import { LevelUpPopup } from "@/components/LevelUpPopup";
 import { Audio } from "expo-av";
@@ -86,15 +85,13 @@ export default function GeminiTestScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={["#E3DFCC", "#7D7B70"]}
+    <View
       style={{
         paddingTop: insets.top + 10,
         paddingBottom: insets.bottom + 10,
         flex: 1,
+        backgroundColor: "#E3DFCC",
       }}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
     >
       <LevelUpPopup />
       <View
@@ -129,8 +126,7 @@ export default function GeminiTestScreen() {
       <FlatList
         style={{ flex: 1, flexGrow: 1 }}
         ListHeaderComponent={
-          <LinearGradient
-            colors={["#00000020", "#00000000"]}
+          <View
             style={{
               height: 15,
             }}
@@ -157,12 +153,12 @@ export default function GeminiTestScreen() {
             style={{
               color: "white",
               borderWidth: 1,
-              borderRadius: 25,
+              borderRadius: 12,
               borderColor: "gray",
               backgroundColor: item.user ? "#519e57" : "#2a75c6",
               padding: 10,
-              borderTopLeftRadius: item.user ? 25 : 0,
-              borderTopRightRadius: item.user ? 0 : 25,
+              borderTopLeftRadius: item.user ? 12 : 0,
+              borderTopRightRadius: item.user ? 0 : 12,
               marginHorizontal: 10,
             }}
           >
@@ -190,7 +186,7 @@ export default function GeminiTestScreen() {
           <Ionicons name="send" size={35} color="white" />
         </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 

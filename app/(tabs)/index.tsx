@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ThemedText } from "@/components/ThemedText";
 import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { Audio } from 'expo-av';
 import { fadeOut, fadeIn } from '../audioUtils';
@@ -77,12 +76,7 @@ export default function HomeScreen(): JSX.Element {
             </View>
 
             {/* Footer Section */}
-            <LinearGradient
-                colors={['#E3DFCC', '#65665C']}
-                style={styles.footer}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-            />
+            <View style={styles.footer} />
         </View>
     );
 }

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Text, TouchableOpacity, View, StyleSheet, Image, TextInput, Keyboard } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from "@/components/ThemedText";
 import { Audio } from 'expo-av';
 import { fadeOut, fadeIn } from '../audioUtils';
@@ -134,12 +133,7 @@ export default function DinoCompanion(): JSX.Element {
             </View>
 
             {/* Footer Section */}
-            <LinearGradient
-                colors={['#E3DFCC', '#7D7B70']}
-                style={styles.footer}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-            />
+            <View style={styles.footer} />
         </View>
     );
 }

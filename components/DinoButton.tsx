@@ -8,7 +8,7 @@ export const DinoButton = (props: DinoButtonProps) => {
     <TouchableOpacity
       style={{
         backgroundColor: "gray",
-        borderRadius: 15,
+        borderRadius: 12,
         alignSelf: "stretch",
         paddingVertical: 10,
         alignItems: "center",

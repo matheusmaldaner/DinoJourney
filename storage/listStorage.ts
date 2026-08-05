@@ -1,4 +1,4 @@
-import { deleteItemAsync, getItem, setItem, setItemAsync } from "expo-secure-store";
+import { deleteItemAsync, getItem, setItem, setItemAsync } from "./secureStore";
 
 export const INTERESTS_LIST_NAME = "Interests";
 export const GOALS_LIST_NAME = "Goals";

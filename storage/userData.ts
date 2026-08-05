@@ -1,4 +1,4 @@
-import { deleteItemAsync, getItem, getItemAsync, setItem, setItemAsync } from "expo-secure-store";
+import { deleteItemAsync, getItem, getItemAsync, setItem, setItemAsync } from "./secureStore";
 
 const USER_NAME_STORE = "userName";
 const USER_XP_STORE = "userXP";
